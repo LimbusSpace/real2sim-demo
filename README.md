@@ -59,7 +59,7 @@ quality gate, artifact schema, and approximate metrics, not byte-identical PLY f
 Install the orchestration package and its locked development environment:
 
 ```powershell
-git clone <this-repository-url>
+git clone https://github.com/LimbusSpace/real2sim-demo.git
 cd real2sim-demo
 uv sync --frozen --group dev
 ```
