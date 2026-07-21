@@ -1,0 +1,25 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    env:
+      REAL2SIM_ASSETS: /tmp/real2sim-assets
+      REAL2SIM_VIDEO: /tmp/tabletop.mp4
+      REAL2SIM_COLMAP: colmap
+      REAL2SIM_GAUSSIAN_PYTHON: python
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen --group dev
+      - run: uv run pytest -q
+      - run: uv run ruff check .
+      - run: uv run mypy src
+      - run: uv run real2sim --config configs/stage1.windows.example.toml --dry-run

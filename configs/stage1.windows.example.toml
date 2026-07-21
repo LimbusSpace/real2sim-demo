@@ -1,0 +1,24 @@
+run_dir = "${REAL2SIM_ASSETS}/runs/tabletop_v0"
+
+[video]
+path = "${REAL2SIM_VIDEO}"
+fps = 2.0
+ffmpeg = "ffmpeg"
+
+[colmap]
+executable = "${REAL2SIM_COLMAP}"
+camera_model = "SIMPLE_RADIAL"
+matcher = "sequential"
+use_gpu = true
+sequential_overlap = 10
+
+[gaussian]
+python = "${REAL2SIM_GAUSSIAN_PYTHON}"
+launcher = "scripts/run_hyworld_trainer.py"
+torch_home = "${REAL2SIM_ASSETS}/weights/torch"
+source_revision = "7f668e67c74338d50684e57be46a438459b6bbe1"
+max_steps = 5000
+data_factor = 1
+sh_degree = 3
+test_every = 8
+disable_video = true

@@ -1,0 +1,55 @@
+{
+  "schema": "real2sim.verified_runs.v1",
+  "external_versions": {
+    "colmap": "4.1.1 (a0d785f, CUDA)",
+    "hyworld": "7f668e67c74338d50684e57be46a438459b6bbe1",
+    "python": "3.11.15",
+    "torch": "2.7.1+cu128"
+  },
+  "runs": [
+    {
+      "name": "sceaux_smoke",
+      "input": {
+        "source_repository": "https://github.com/openMVG/ImageDataset_SceauxCastle",
+        "source_revision": "fde7f5faba555e3c54700477c304488613346a19",
+        "video_sha256": "07a0a5a08eea49f5c766a35d5ff15c2bf591c08eb3b745f8692567cc7bf398fb",
+        "extracted_frames": 11
+      },
+      "colmap": {
+        "matcher": "sequential",
+        "registered_images": 11,
+        "sparse_points": 7498
+      },
+      "gaussian": {
+        "steps": 500,
+        "data_factor": 4,
+        "sh_degree": 1,
+        "gaussian_count": 7498,
+        "psnr": 15.208,
+        "ssim": 0.6822,
+        "lpips": 0.421
+      }
+    },
+    {
+      "name": "tabletop_v1",
+      "input": {
+        "video_sha256": "3403958943fca12ef98320f3130e795534951c319aaeca8d6bb2e29ddba24fcb",
+        "extracted_frames": 64
+      },
+      "colmap": {
+        "matcher": "exhaustive",
+        "registered_images": 23,
+        "sparse_points": 553
+      },
+      "gaussian": {
+        "steps": 5000,
+        "data_factor": 1,
+        "sh_degree": 3,
+        "gaussian_count": 54768,
+        "psnr": 30.986,
+        "ssim": 0.9704,
+        "lpips": 0.127
+      }
+    }
+  ]
+}

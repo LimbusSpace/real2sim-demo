@@ -1,0 +1,24 @@
+run_dir = "${REAL2SIM_ASSETS}/runs/sceaux_smoke_colmap411"
+
+[video]
+path = "${REAL2SIM_ASSETS}/datasets/openmvg/ImageDataset_SceauxCastle/sceaux_castle.mp4"
+fps = 2.0
+ffmpeg = "ffmpeg"
+
+[colmap]
+executable = "${REAL2SIM_COLMAP}"
+camera_model = "SIMPLE_RADIAL"
+matcher = "sequential"
+use_gpu = true
+sequential_overlap = 10
+
+[gaussian]
+python = "${REAL2SIM_GAUSSIAN_PYTHON}"
+launcher = "scripts/run_hyworld_trainer.py"
+torch_home = "${REAL2SIM_ASSETS}/weights/torch"
+source_revision = "7f668e67c74338d50684e57be46a438459b6bbe1"
+max_steps = 500
+data_factor = 4
+sh_degree = 1
+test_every = 4
+disable_video = true

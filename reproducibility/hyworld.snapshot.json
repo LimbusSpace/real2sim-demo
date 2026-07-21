@@ -1,0 +1,27 @@
+{
+  "schema": "real2sim.external_snapshot.v1",
+  "source": {
+    "name": "HY-World-2.0",
+    "repository": "https://github.com/Tencent-Hunyuan/HY-World-2.0",
+    "commit": "7f668e67c74338d50684e57be46a438459b6bbe1",
+    "archive": "https://github.com/Tencent-Hunyuan/HY-World-2.0/archive/7f668e67c74338d50684e57be46a438459b6bbe1.zip"
+  },
+  "files": [
+    {
+      "path": "hyworld2/worldgen/world_gs_trainer.py",
+      "sha256": "a0cf483b301e9d7ac45198590e04751988342b9e2d34d6a679a5f794dea3a49a"
+    },
+    {
+      "path": "hyworld2/worldgen/third_party/gsplat_maskgaussian/setup.py",
+      "sha256": "546ccc88beb4843cae5de0db1bc7def9627007bb6c641bb18b72389eda303a16"
+    },
+    {
+      "path": "requirements.txt",
+      "sha256": "d326ff8f80bfeb4711c2f1d4abeeb41c67e80aba34a4bea589b4eb42e62ed1ee"
+    },
+    {
+      "path": "requirements_git.txt",
+      "sha256": "3fe1b1a3fb07c0cfd8e0d39f0f2f2cc21ed071a031905334b8bcc9d495067b26"
+    }
+  ]
+}
