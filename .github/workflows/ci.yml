@@ -22,4 +22,5 @@ jobs:
       - run: uv run pytest -q
       - run: uv run ruff check .
       - run: uv run mypy src
+      - run: uv run real2sim --config configs/stage1.sceaux.smoke.toml --dry-run
       - run: uv run real2sim --config configs/stage1.windows.example.toml --dry-run

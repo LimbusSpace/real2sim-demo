@@ -50,6 +50,9 @@ and SHA256 hashes for the trainer, requirements, and custom gsplat entry point. 
 readable input hashes and acceptance metrics are stored in
 `reproducibility/verified_runs.json`.
 
+For the complete public download, source-verification, execution, and
+acceptance procedure, see [the reproduction guide](reproducibility/REPRODUCE.md).
+
 CUDA kernels and COLMAP bundle adjustment are not guaranteed to be bitwise deterministic
 across GPUs and drivers. Reproduction means matching the pipeline stages, registered-camera
 quality gate, artifact schema, and approximate metrics, not byte-identical PLY files.

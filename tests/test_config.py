@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -29,6 +30,26 @@ def test_example_config_resolves_environment_and_relative_paths(
     assert settings.gaussian.source_revision == "7f668e67c74338d50684e57be46a438459b6bbe1"
     assert settings.gaussian.data_factor == 1
     assert settings.run_dir.is_absolute()
+
+
+def test_public_smoke_config_is_portable(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    assets = tmp_path / "real2sim-assets"
+    monkeypatch.setenv("REAL2SIM_ASSETS", str(assets))
+    monkeypatch.setenv("REAL2SIM_COLMAP", "colmap")
+    monkeypatch.setenv("REAL2SIM_GAUSSIAN_PYTHON", "python")
+
+    settings = Stage1Settings.from_toml(Path("configs/stage1.sceaux.smoke.toml")).resolved(
+        Path.cwd()
+    )
+
+    expected_video = assets / "datasets/openmvg/ImageDataset_SceauxCastle/sceaux_castle.mp4"
+    snapshot = json.loads(Path("reproducibility/hyworld.snapshot.json").read_text(encoding="utf-8"))
+
+    assert settings.video.path == expected_video
+    assert settings.run_dir == assets / "runs/sceaux_smoke_colmap411"
+    assert settings.colmap.matcher == "sequential"
+    assert settings.gaussian.max_steps == 500
+    assert settings.gaussian.source_revision == snapshot["source"]["commit"]
 
 
 def test_config_reports_unset_environment_variable(
