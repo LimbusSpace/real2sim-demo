@@ -3,8 +3,13 @@
   "external_versions": {
     "colmap": "4.1.1 (a0d785f, CUDA)",
     "hyworld": "7f668e67c74338d50684e57be46a438459b6bbe1",
+    "2dgs": "335ad612f2e783a4e57b9cbc4d1e167bd599fc98",
+    "diff_surfel_rasterization": "e0ed0207b3e0669960cfad70852200a4a5847f61",
+    "simple_knn": "f155ec04131cb579f53443a06879d37115f4612f",
     "python": "3.11.15",
-    "torch": "2.7.1+cu128"
+    "torch": "2.7.1+cu128",
+    "open3d": "0.18.0",
+    "matplotlib": "3.9.4"
   },
   "runs": [
     {
@@ -49,6 +54,19 @@
         "psnr": 30.986,
         "ssim": 0.9704,
         "lpips": 0.127
+      },
+      "mesh": {
+        "backend": "2dgs_bounded_tsdf",
+        "registered_images": 23,
+        "iterations": 30000,
+        "surfel_count": 70676,
+        "raw_vertices": 3042317,
+        "raw_faces": 5217940,
+        "post_vertices": 2544685,
+        "post_faces": 4786886,
+        "has_rgb": true,
+        "preview_width": 1544,
+        "preview_height": 512
       }
     }
   ]

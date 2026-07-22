@@ -20,6 +20,7 @@ dev = [
 
 [project.scripts]
 real2sim = "real2sim_demo.cli:main"
+real2sim-mesh = "real2sim_demo.mesh_cli:main"
 real2sim-verify-snapshot = "real2sim_demo.snapshot:main"
 
 [tool.hatch.build.targets.wheel]

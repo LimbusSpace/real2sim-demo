@@ -2,14 +2,15 @@
 
 An end-to-end real2sim pipeline, built one inspectable stage at a time.
 
-The current milestone is:
+The current milestones are:
 
 ```text
 casual video -> extracted frames -> COLMAP cameras/sparse points -> HY-World 3DGS -> PLY
+                                      \-> official 2DGS -> bounded TSDF -> colored mesh
 ```
 
-Instance segmentation, mesh extraction, collision generation, and MuJoCo are intentionally
-outside this milestone.
+Instance segmentation, collision generation, metric calibration, and MuJoCo are intentionally
+outside these milestones.
 
 ## Stage 1
 
@@ -29,6 +30,113 @@ renders, and the final Gaussian PLY path. COLMAP and HY-World remain external to
 repository provides orchestration and the required data adapter rather than copying their
 implementations. The configured HY-World source revision is also stored in each run manifest
 and Gaussian provenance file.
+
+## Stage 2
+
+Stage 2 is an independent `real2sim-mesh` flow. It reuses the undistorted images and COLMAP
+camera model from a completed Stage 1 run, trains the official 2D Gaussian Splatting model
+with every registered view, and exports a colored mesh with bounded TSDF fusion. The HY-World
+3DGS PLY remains a parallel Stage 1 artifact and is not used as 2DGS input.
+
+The official `hbb1/2d-gaussian-splatting` code is licensed only for non-commercial research
+and evaluation. Review its `LICENSE.md` before using Stage 2. The pinned source revisions are:
+
+| Component | Revision |
+| --- | --- |
+| `2d-gaussian-splatting` | `335ad612f2e783a4e57b9cbc4d1e167bd599fc98` |
+| `diff-surfel-rasterization` | `e0ed0207b3e0669960cfad70852200a4a5847f61` |
+| `simple-knn` | `f155ec04131cb579f53443a06879d37115f4612f` |
+
+### Install 2DGS
+
+Use a separate Conda environment so its compiled extensions cannot alter `hyworld2`. The
+following Windows setup uses Python 3.11, PyTorch 2.7.1 with CUDA 12.8 wheels, local CUDA
+Toolkit 12.6, and the Visual Studio 2022 x64 build tools:
+
+```powershell
+git clone --recursive https://github.com/hbb1/2d-gaussian-splatting.git D:\tools\2d-gaussian-splatting
+git -C D:\tools\2d-gaussian-splatting checkout 335ad612f2e783a4e57b9cbc4d1e167bd599fc98
+git -C D:\tools\2d-gaussian-splatting submodule update --init --recursive
+
+conda create -n surfel_splatting python=3.11 -y
+$python = "$env:USERPROFILE\.conda\envs\surfel_splatting\python.exe"
+& $python -m pip install torch==2.7.1 torchvision==0.22.1 `
+  --index-url https://download.pytorch.org/whl/cu128
+& $python -m pip install open3d==0.18.0 mediapy==1.1.2 lpips==0.1.4 `
+  scikit-image==0.21.0 tqdm==4.66.2 trimesh==4.3.2 matplotlib==3.9.4 `
+  plyfile opencv-python ninja
+
+$root = "D:\tools\2d-gaussian-splatting"
+$env:DISTUTILS_USE_SDK = "1"
+$env:MSSdk = "1"
+$env:CUDA_PATH = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6"
+$env:CUDA_HOME = $env:CUDA_PATH
+$env:TORCH_CUDA_ARCH_LIST = "8.9" # RTX 40 series; adjust for the target GPU
+& $python -m pip install --no-build-isolation "$root\submodules\diff-surfel-rasterization"
+& $python -m pip install --no-build-isolation "$root\submodules\simple-knn"
+```
+
+Run the two extension installation commands from a Visual Studio 2022 x64 developer shell
+with `CUDA_PATH` pointing to CUDA 12.6. Then configure and verify the source and environment:
+
+```powershell
+$env:REAL2SIM_ASSETS = "E:\real2sim-assets"
+$env:REAL2SIM_2DGS_ROOT = "D:\tools\2d-gaussian-splatting"
+$env:REAL2SIM_2DGS_PYTHON = "$env:USERPROFILE\.conda\envs\surfel_splatting\python.exe"
+
+uv run real2sim-verify-snapshot `
+  --manifest reproducibility/2dgs.snapshot.json `
+  --root $env:REAL2SIM_2DGS_ROOT
+./scripts/check_stage2_env.ps1
+```
+
+### Run Stage 2
+
+Inspect the complete command sequence without requiring a GPU or real input:
+
+```powershell
+uv run real2sim-mesh --config configs/stage2.tabletop_v1.toml --dry-run
+```
+
+Run each hardware stage separately so the 23-view dataset and 30,000-step surfel PLY can be
+checked before TSDF fusion:
+
+```powershell
+uv run real2sim-mesh --config configs/stage2.tabletop_v1.toml --stage prepare
+uv run real2sim-mesh --config configs/stage2.tabletop_v1.toml --stage train
+uv run real2sim-mesh --config configs/stage2.tabletop_v1.toml --stage mesh
+```
+
+`--input-run-dir` and `--output-dir` override the TOML paths. The default bounded meshing
+settings leave `depth_trunc`, `voxel_size`, and `sdf_trunc` unset so upstream estimates them
+from camera scale; each can be explicitly added under `[mesh]` when tuning is required.
+
+Stage 2 writes stable output names independently of the upstream directory depth:
+
+```text
+<stage2_output>/
+  manifest.json                 # real2sim.mesh.v1
+  trace.json
+  provenance.json
+  dataset/
+    images/
+    sparse/0/{cameras,images,points3D}.bin
+    provenance.json
+  2dgs/
+    point_cloud/iteration_30000/point_cloud.ply
+    provenance.json
+  mesh/
+    raw.ply
+    post.ply
+    preview.png                 # front, isometric, top
+    provenance.json
+  logs/
+```
+
+The mesh validator requires nonzero vertices and triangle faces plus RGB vertex colors, and
+rejects a post-processed mesh larger than the raw mesh. A capture with incomplete view
+coverage can still leave holes in unseen surfaces; Stage 2 does not claim simulation-ready
+geometry or repair those regions.
 
 ## Reproducibility Contract
 

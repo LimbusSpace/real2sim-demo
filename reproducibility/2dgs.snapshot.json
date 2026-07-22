@@ -1,0 +1,26 @@
+{
+  "schema": "real2sim.external_snapshot.v1",
+  "source": {
+    "name": "2d-gaussian-splatting",
+    "repository": "https://github.com/hbb1/2d-gaussian-splatting",
+    "commit": "335ad612f2e783a4e57b9cbc4d1e167bd599fc98"
+  },
+  "submodules": {
+    "diff-surfel-rasterization": {
+      "repository": "https://github.com/hbb1/diff-surfel-rasterization",
+      "commit": "e0ed0207b3e0669960cfad70852200a4a5847f61"
+    },
+    "simple-knn": {
+      "repository": "https://gitlab.inria.fr/bkerbl/simple-knn.git",
+      "commit": "f155ec04131cb579f53443a06879d37115f4612f"
+    }
+  },
+  "files": [
+    {"path": "train.py", "sha256": "293eb2fe5b2e44859e8b446d22faf9d52434b0416c1fa310fe5d31b21639919a"},
+    {"path": "render.py", "sha256": "cb5eacb545da8143eaa4af6670254b46a1d2eb052a300c00116204b5bb0722b5"},
+    {"path": "arguments/__init__.py", "sha256": "1e18eb77ee4ed1707b991cde2a58354676517bb7e5077c5db93022ff1c245595"},
+    {"path": "utils/mesh_utils.py", "sha256": "bba06f5c46c16b4246c6f8c69ea06db4c476d29de2557749e61220889f969169"},
+    {"path": "submodules/diff-surfel-rasterization/setup.py", "sha256": "8dee067344419cacd20d28e90bdd81742af62589425095fc4fe7f24f7bf727d4"},
+    {"path": "submodules/simple-knn/setup.py", "sha256": "7c22bf9f30e91f09da249f9edf3de942aea7690b0ab269204da1e113d9eabac4"}
+  ]
+}

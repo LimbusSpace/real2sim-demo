@@ -27,7 +27,7 @@ def verify_snapshot(manifest_path: Path, root: Path) -> list[str]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Verify a downloaded HY-World source snapshot.")
+    parser = argparse.ArgumentParser(description="Verify a downloaded external source snapshot.")
     parser.add_argument("--manifest", required=True, type=Path)
     parser.add_argument("--root", required=True, type=Path)
     return parser
@@ -39,15 +39,15 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Snapshot manifest does not exist: {args.manifest}", file=sys.stderr)
         return 2
     if not args.root.is_dir():
-        print(f"HY-World root does not exist: {args.root}", file=sys.stderr)
+        print(f"Source root does not exist: {args.root}", file=sys.stderr)
         return 2
     failures = verify_snapshot(args.manifest, args.root)
     if failures:
         for failure in failures:
-            print(f"HY-World snapshot verification failed: {failure}", file=sys.stderr)
+            print(f"Source snapshot verification failed: {failure}", file=sys.stderr)
         return 1
     payload = json.loads(args.manifest.read_text(encoding="utf-8"))
-    print(f"HY-World snapshot OK: {payload['source']['commit']}")
+    print(f"{payload['source']['name']} snapshot OK: {payload['source']['commit']}")
     return 0
 
 
