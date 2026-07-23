@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Reproducible real video to 3D Gaussian Splatting demo."
 requires-python = ">=3.11"
 dependencies = [
+  "numpy>=1.26.0",
   "pillow>=10.4.0",
 ]
 

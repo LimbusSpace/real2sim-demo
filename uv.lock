@@ -739,6 +739,8 @@ name = "real2sim-demo"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "2.5.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "pillow" },
 ]
 
@@ -757,7 +759,10 @@ physics = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pillow", specifier = ">=10.4.0" }]
+requires-dist = [
+    { name = "numpy", specifier = ">=1.26.0" },
+    { name = "pillow", specifier = ">=10.4.0" },
+]
 
 [package.metadata.requires-dev]
 dev = [

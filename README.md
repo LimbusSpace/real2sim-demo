@@ -144,14 +144,26 @@ Stage 2 writes stable output names independently of the upstream directory depth
     provenance.json
   2dgs/
     point_cloud/iteration_30000/point_cloud.ply
+    train/ours_30000/{gt,renders,vis}/
     provenance.json
   mesh/
     raw.ply
     post.ply
     preview.png                 # front, isometric, top
     provenance.json
+  diagnostics/
+    triptychs/*.jpg             # ground truth, 2DGS RGB, surf depth
+    contact_sheet.jpg
+    report.json                 # depth range and per-view RGB metrics
+    provenance.json
   logs/
 ```
+
+The mesh step reuses the official 2DGS `render.py` to export every training view, RGB render,
+and floating-point surf-depth map. It then creates a labeled triptych for each camera plus a
+uniformly sampled contact sheet. The diagnostic render and composition commands are recorded
+in `logs/11_2dgs_diagnostics_render.log` and `logs/12_2dgs_diagnostics_triptych.log`; matching
+checkpoint, image, and script fingerprints allow the diagnostics to be reused.
 
 The mesh validator requires nonzero vertices and triangle faces plus RGB vertex colors, and
 rejects a post-processed mesh larger than the raw mesh. A capture with incomplete view

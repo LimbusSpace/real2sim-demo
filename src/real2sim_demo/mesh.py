@@ -5,7 +5,7 @@ import json
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from shutil import copy2
+from shutil import copy2, rmtree
 from typing import Any
 
 from PIL import Image, ImageStat
@@ -96,6 +96,51 @@ def build_preview_command(
     python: str, script: Path, mesh_path: Path, output_path: Path
 ) -> list[str | Path]:
     return [python, script, "--mesh", mesh_path, "--output", output_path]
+
+
+def build_diagnostics_render_command(
+    settings: TwoDGSSettings, dataset_dir: Path, model_dir: Path
+) -> list[str | Path]:
+    return [
+        settings.python,
+        settings.root / "render.py",
+        "--source_path",
+        dataset_dir,
+        "--model_path",
+        model_dir,
+        "--iteration",
+        str(settings.iterations),
+        "--skip_test",
+        "--skip_mesh",
+        "--depth_ratio",
+        str(settings.depth_ratio),
+        "--quiet",
+    ]
+
+
+def build_diagnostics_triptych_command(
+    python: str,
+    gt_dir: Path,
+    render_dir: Path,
+    depth_dir: Path,
+    output_dir: Path,
+    camera_map: Path,
+) -> list[str | Path]:
+    return [
+        python,
+        "-m",
+        "real2sim_demo.mesh_diagnostics",
+        "--gt-dir",
+        gt_dir,
+        "--render-dir",
+        render_dir,
+        "--depth-dir",
+        depth_dir,
+        "--output-dir",
+        output_dir,
+        "--camera-map",
+        camera_map,
+    ]
 
 
 def train_2dgs(
@@ -215,8 +260,7 @@ def export_mesh(
     upstream_post = upstream_dir / "fuse_post.ply"
     if not upstream_raw.is_file() or not upstream_post.is_file():
         raise FileNotFoundError(
-            "2DGS finished without bounded mesh outputs: "
-            f"{upstream_raw}, {upstream_post}"
+            f"2DGS finished without bounded mesh outputs: {upstream_raw}, {upstream_post}"
         )
     mesh_dir.mkdir(parents=True, exist_ok=True)
     copy2(upstream_raw, raw)
@@ -276,6 +320,92 @@ def create_preview(
     return result, False
 
 
+def create_diagnostics(
+    settings: TwoDGSSettings,
+    dataset_dir: Path,
+    model_dir: Path,
+    diagnostics_dir: Path,
+    logs_dir: Path,
+    *,
+    composer_python: str,
+    dry_run: bool = False,
+) -> tuple[
+    dict[str, Any] | None,
+    CommandResult | None,
+    CommandResult | None,
+    bool,
+]:
+    upstream_dir = model_dir / "train" / f"ours_{settings.iterations}"
+    gt_dir = upstream_dir / "gt"
+    render_dir = upstream_dir / "renders"
+    depth_dir = upstream_dir / "vis"
+    report_path = diagnostics_dir / "report.json"
+    provenance_path = diagnostics_dir / "provenance.json"
+    expected = _diagnostics_provenance(settings, dataset_dir, model_dir)
+    if not dry_run and _provenance_matches(provenance_path, expected) and report_path.is_file():
+        return validate_diagnostics(report_path), None, None, True
+
+    if not dry_run:
+        verify_2dgs_source(settings.root, settings.source_revision)
+        checkpoint = (
+            model_dir / "point_cloud" / f"iteration_{settings.iterations}" / "point_cloud.ply"
+        )
+        validate_surfel_ply(checkpoint)
+        for path in (gt_dir, render_dir, depth_dir):
+            if path.is_dir():
+                rmtree(path)
+
+    twodgs_python = settings.python if dry_run else resolve_executable(settings.python)
+    configured = TwoDGSSettings(
+        python=twodgs_python,
+        root=settings.root,
+        source_revision=settings.source_revision,
+        iterations=settings.iterations,
+        resolution=settings.resolution,
+        sh_degree=settings.sh_degree,
+        depth_ratio=settings.depth_ratio,
+        lambda_normal=settings.lambda_normal,
+        lambda_dist=settings.lambda_dist,
+    )
+    render_result = run_command(
+        build_diagnostics_render_command(configured, dataset_dir, model_dir),
+        logs_dir / "11_2dgs_diagnostics_render.log",
+        cwd=settings.root if not dry_run else None,
+        env={"PYTHONUTF8": "1"},
+        dry_run=dry_run,
+    )
+    executable = composer_python if dry_run else resolve_executable(composer_python)
+    triptych_result = run_command(
+        build_diagnostics_triptych_command(
+            executable,
+            gt_dir,
+            render_dir,
+            depth_dir,
+            diagnostics_dir,
+            model_dir / "cameras.json",
+        ),
+        logs_dir / "12_2dgs_diagnostics_triptych.log",
+        cwd=Path(__file__).resolve().parents[2] if not dry_run else None,
+        env={"PYTHONUTF8": "1"},
+        dry_run=dry_run,
+    )
+    if dry_run:
+        return None, render_result, triptych_result, False
+
+    report = validate_diagnostics(report_path)
+    _write_json(
+        provenance_path,
+        expected
+        | {
+            "report": str(report_path.resolve()),
+            "contact_sheet": report["contact_sheet"],
+            "triptych_dir": report["triptych_dir"],
+            "frame_count": report["frame_count"],
+        },
+    )
+    return report, render_result, triptych_result, False
+
+
 def validate_preview(path: Path) -> None:
     if not path.is_file() or path.stat().st_size == 0:
         raise FileNotFoundError(f"Mesh preview was not created: {path}")
@@ -285,6 +415,26 @@ def validate_preview(path: Path) -> None:
         extrema = ImageStat.Stat(image.convert("RGB")).extrema
     if all(low == high for low, high in extrema):
         raise ValueError(f"Mesh preview is blank: {path}")
+
+
+def validate_diagnostics(report_path: Path) -> dict[str, Any]:
+    if not report_path.is_file():
+        raise FileNotFoundError(f"2DGS diagnostics report was not created: {report_path}")
+    payload: dict[str, Any] = json.loads(report_path.read_text(encoding="utf-8"))
+    if payload.get("schema") != "real2sim.2dgs_diagnostics.v1":
+        raise ValueError(f"Unsupported 2DGS diagnostics report: {report_path}")
+    frame_count = int(payload.get("frame_count", 0))
+    triptych_dir = Path(str(payload.get("triptych_dir", "")))
+    contact_sheet = Path(str(payload.get("contact_sheet", "")))
+    triptychs = sorted(triptych_dir.glob("*.jpg")) if triptych_dir.is_dir() else []
+    if frame_count <= 0 or len(triptychs) != frame_count:
+        raise ValueError(
+            f"2DGS diagnostics frame count mismatch: report={frame_count}, files={len(triptychs)}"
+        )
+    validate_preview(contact_sheet)
+    validate_preview(triptychs[0])
+    validate_preview(triptychs[-1])
+    return payload
 
 
 def verify_2dgs_source(root: Path, expected_revision: str) -> dict[str, str]:
@@ -365,12 +515,7 @@ def _mesh_provenance(
     model_dir: Path,
     **mesh: Any,
 ) -> dict[str, Any]:
-    surfel_ply = (
-        model_dir
-        / "point_cloud"
-        / f"iteration_{settings.iterations}"
-        / "point_cloud.ply"
-    )
+    surfel_ply = model_dir / "point_cloud" / f"iteration_{settings.iterations}" / "point_cloud.ply"
     return {
         "schema": "real2sim.2dgs_mesh.v1",
         "source_root": str(settings.root.resolve()),
@@ -383,6 +528,30 @@ def _mesh_provenance(
         "depth_ratio": settings.depth_ratio,
         "mode": "bounded",
         **mesh,
+    }
+
+
+def _diagnostics_provenance(
+    settings: TwoDGSSettings, dataset_dir: Path, model_dir: Path
+) -> dict[str, Any]:
+    checkpoint = model_dir / "point_cloud" / f"iteration_{settings.iterations}" / "point_cloud.ply"
+    composer = Path(__file__).with_name("mesh_diagnostics.py")
+    render_script = settings.root / "render.py"
+    return {
+        "schema": "real2sim.2dgs_diagnostics_provenance.v1",
+        "source_root": str(settings.root.resolve()),
+        "source_revision": settings.source_revision,
+        "dataset": str(dataset_dir.resolve()),
+        "dataset_images_sha256": _directory_sha256(dataset_dir / "images"),
+        "model_dir": str(model_dir.resolve()),
+        "iterations": settings.iterations,
+        "checkpoint_sha256": _sha256(checkpoint) if checkpoint.is_file() else None,
+        "depth_ratio": settings.depth_ratio,
+        "render_script_sha256": _sha256(render_script) if render_script.is_file() else None,
+        "composer_sha256": _sha256(composer) if composer.is_file() else None,
+        "camera_map_sha256": _sha256(model_dir / "cameras.json")
+        if (model_dir / "cameras.json").is_file()
+        else None,
     }
 
 
@@ -406,4 +575,17 @@ def _sha256(path: Path) -> str:
     with path.open("rb") as handle:
         for block in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(block)
+    return digest.hexdigest()
+
+
+def _directory_sha256(path: Path) -> str | None:
+    if not path.is_dir():
+        return None
+    digest = hashlib.sha256()
+    files = sorted(item for item in path.rglob("*") if item.is_file())
+    for item in files:
+        digest.update(item.relative_to(path).as_posix().encode("utf-8"))
+        with item.open("rb") as handle:
+            for block in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(block)
     return digest.hexdigest()

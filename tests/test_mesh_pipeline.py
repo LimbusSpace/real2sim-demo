@@ -30,12 +30,15 @@ def test_stage2_dry_run_records_prepare_train_mesh_preview_order(tmp_path: Path)
         "train",
         "mesh",
         "preview",
+        "diagnostics",
     ]
     assert all(event["status"] == "completed" for event in trace["events"])
     assert [command["stage"] for command in manifest["commands"]] == [
         "train",
         "mesh",
         "preview",
+        "diagnostics_render",
+        "diagnostics_triptych",
     ]
     train_command = manifest["commands"][0]["command"]
     mesh_command = manifest["commands"][1]["command"]
@@ -46,6 +49,13 @@ def test_stage2_dry_run_records_prepare_train_mesh_preview_order(tmp_path: Path)
     assert "--skip_test" in mesh_command
     assert "--unbounded" not in mesh_command
     assert (settings.output_dir / "logs" / "10_mesh_preview.log").is_file()
+    assert (settings.output_dir / "logs" / "11_2dgs_diagnostics_render.log").is_file()
+    assert (settings.output_dir / "logs" / "12_2dgs_diagnostics_triptych.log").is_file()
+    diagnostics = manifest["artifacts"]["diagnostics"]
+    assert diagnostics["frame_count"] is None
+    report_path = Path(diagnostics["report"])
+    assert report_path.name == "report.json"
+    assert report_path.parent.name == "diagnostics"
 
 
 def test_stage2_failure_is_written_to_manifest(tmp_path: Path) -> None:

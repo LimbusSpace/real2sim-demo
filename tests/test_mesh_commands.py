@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from real2sim_demo.mesh import build_mesh_command, build_train_command
+from real2sim_demo.mesh import (
+    build_diagnostics_render_command,
+    build_mesh_command,
+    build_train_command,
+)
 from real2sim_demo.mesh_config import TwoDGSSettings
 
 
@@ -51,3 +55,18 @@ def test_train_command_uses_all_views_without_eval_holdout(tmp_path: Path) -> No
     assert "--eval" not in command
     assert command[command.index("--iterations") + 1] == "30000"
     assert command[command.index("--sh_degree") + 1] == "3"
+
+
+def test_diagnostics_command_renders_training_views_without_mesh(tmp_path: Path) -> None:
+    settings = TwoDGSSettings(python="python", root=tmp_path / "2dgs")
+
+    command = build_diagnostics_render_command(
+        settings,
+        tmp_path / "dataset",
+        tmp_path / "model",
+    )
+
+    assert "--skip_train" not in command
+    assert "--skip_test" in command
+    assert "--skip_mesh" in command
+    assert command[command.index("--iteration") + 1] == "30000"

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sys
 import time
 from datetime import UTC, datetime
 from pathlib import Path
@@ -9,6 +10,7 @@ from typing import Any, Callable
 
 from .mesh import (
     MeshArtifacts,
+    create_diagnostics,
     create_preview,
     export_mesh,
     source_versions,
@@ -125,9 +127,7 @@ def run_stage2(
             if artifacts is not None:
                 _record_mesh_artifacts(manifest, artifacts)
             preview_script = (
-                Path(__file__).resolve().parents[2]
-                / "scripts"
-                / "render_mesh_preview.py"
+                Path(__file__).resolve().parents[2] / "scripts" / "render_mesh_preview.py"
             )
             preview_result, _ = _timed_step(
                 trace,
@@ -145,6 +145,49 @@ def run_stage2(
             preview_command, preview_reused = preview_result
             _record_command(manifest, preview_command, "preview", reused=preview_reused)
             manifest["artifacts"]["preview"] = str((mesh_dir / "preview.png").resolve())
+            diagnostics_dir = output_dir / "diagnostics"
+            diagnostics_result, _ = _timed_step(
+                trace,
+                "diagnostics",
+                lambda: create_diagnostics(
+                    settings.twodgs,
+                    dataset_dir,
+                    model_dir,
+                    diagnostics_dir,
+                    logs_dir,
+                    composer_python=sys.executable,
+                    dry_run=dry_run,
+                ),
+            )
+            report, render_command, triptych_command, diagnostics_reused = diagnostics_result
+            _record_command(
+                manifest,
+                render_command,
+                "diagnostics_render",
+                reused=diagnostics_reused,
+            )
+            _record_command(
+                manifest,
+                triptych_command,
+                "diagnostics_triptych",
+                reused=diagnostics_reused,
+            )
+            diagnostics_artifacts: dict[str, Any] = {
+                "report": str((diagnostics_dir / "report.json").resolve()),
+                "contact_sheet": str((diagnostics_dir / "contact_sheet.jpg").resolve()),
+                "triptych_dir": str((diagnostics_dir / "triptychs").resolve()),
+                "frame_count": None,
+            }
+            if report is not None:
+                diagnostics_artifacts.update(
+                    {
+                        "frame_count": report["frame_count"],
+                        "depth_percentile_02": report["depth_percentile_02"],
+                        "depth_percentile_98": report["depth_percentile_98"],
+                        "metrics": report["metrics"],
+                    }
+                )
+            manifest["artifacts"]["diagnostics"] = diagnostics_artifacts
             manifest["stage"] = "commands_planned" if dry_run else "mesh_exported"
     except Exception as exc:
         manifest["stage"] = "failed"
@@ -209,9 +252,7 @@ def _append_completed_event(trace: list[dict[str, Any]], name: str) -> None:
     )
 
 
-def _record_command(
-    manifest: dict[str, Any], command: Any, stage: str, *, reused: bool
-) -> None:
+def _record_command(manifest: dict[str, Any], command: Any, stage: str, *, reused: bool) -> None:
     record: dict[str, Any] = {"stage": stage, "reused": reused}
     if command is not None:
         record.update(
