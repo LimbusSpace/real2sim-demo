@@ -10,4 +10,5 @@ artifacts/
 data/
 outputs/
 *.mp4
+!examples/tabletop_v1_physics/video/scene_preview.mp4
 *.egg-info/

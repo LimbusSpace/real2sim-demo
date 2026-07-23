@@ -1,0 +1,522 @@
+{
+  "schema": "real2sim.physics_package.v1",
+  "source_manifest_sha256": "3589bf3cbc8b2857f9b4bff91fead57ce8a96d12f7cde22e1e30818e15c05024",
+  "source_input_mesh_sha256": "4568708521ace75aef81004be7b71579dc11a6359a98128942c3741cd6e8cd42",
+  "versions": {
+    "python": "3.11.14",
+    "coacd": "1.0.11",
+    "obj2mjcf": "0.0.25",
+    "mujoco": "3.10.0",
+    "trimesh": "4.12.2",
+    "fast-simplification": "0.1.13"
+  },
+  "transform": {
+    "target_extent_m": 1.0,
+    "scale_m_per_unit": 0.0652276182035846,
+    "support_plane_inlier_fraction": 0.10502
+  },
+  "collision": {
+    "count": 64,
+    "total_vertex_count": 3735,
+    "total_face_count": 7214
+  },
+  "validation": {
+    "schema": "real2sim.physics_validation.v1",
+    "success": true,
+    "mujoco_version": "3.10.0",
+    "scene_xml": "scene.xml",
+    "steps": 10,
+    "final_time": 0.020000000000000004,
+    "gravity": [
+      0.0,
+      0.0,
+      -9.81
+    ],
+    "model": {
+      "nbody": 2,
+      "njnt": 0,
+      "ngeom": 65,
+      "nmesh": 65,
+      "visual_geom_count": 1,
+      "collision_geom_count": 64
+    },
+    "structure": {
+      "static_body_count": 1,
+      "visual_geom_count": 1,
+      "collision_geom_count": 64,
+      "mesh_asset_count": 65,
+      "mesh_files": [
+        "scene.obj",
+        "scene_collision_000.obj",
+        "scene_collision_001.obj",
+        "scene_collision_002.obj",
+        "scene_collision_003.obj",
+        "scene_collision_004.obj",
+        "scene_collision_005.obj",
+        "scene_collision_006.obj",
+        "scene_collision_007.obj",
+        "scene_collision_008.obj",
+        "scene_collision_009.obj",
+        "scene_collision_010.obj",
+        "scene_collision_011.obj",
+        "scene_collision_012.obj",
+        "scene_collision_013.obj",
+        "scene_collision_014.obj",
+        "scene_collision_015.obj",
+        "scene_collision_016.obj",
+        "scene_collision_017.obj",
+        "scene_collision_018.obj",
+        "scene_collision_019.obj",
+        "scene_collision_020.obj",
+        "scene_collision_021.obj",
+        "scene_collision_022.obj",
+        "scene_collision_023.obj",
+        "scene_collision_024.obj",
+        "scene_collision_025.obj",
+        "scene_collision_026.obj",
+        "scene_collision_027.obj",
+        "scene_collision_028.obj",
+        "scene_collision_029.obj",
+        "scene_collision_030.obj",
+        "scene_collision_031.obj",
+        "scene_collision_032.obj",
+        "scene_collision_033.obj",
+        "scene_collision_034.obj",
+        "scene_collision_035.obj",
+        "scene_collision_036.obj",
+        "scene_collision_037.obj",
+        "scene_collision_038.obj",
+        "scene_collision_039.obj",
+        "scene_collision_040.obj",
+        "scene_collision_041.obj",
+        "scene_collision_042.obj",
+        "scene_collision_043.obj",
+        "scene_collision_044.obj",
+        "scene_collision_045.obj",
+        "scene_collision_046.obj",
+        "scene_collision_047.obj",
+        "scene_collision_048.obj",
+        "scene_collision_049.obj",
+        "scene_collision_050.obj",
+        "scene_collision_051.obj",
+        "scene_collision_052.obj",
+        "scene_collision_053.obj",
+        "scene_collision_054.obj",
+        "scene_collision_055.obj",
+        "scene_collision_056.obj",
+        "scene_collision_057.obj",
+        "scene_collision_058.obj",
+        "scene_collision_059.obj",
+        "scene_collision_060.obj",
+        "scene_collision_061.obj",
+        "scene_collision_062.obj",
+        "scene_collision_063.obj"
+      ]
+    }
+  },
+  "video": {
+    "schema": "real2sim.physics_video.v1",
+    "scene_xml": "scene.xml",
+    "output": "video/scene_preview.mp4",
+    "width": 640,
+    "height": 480,
+    "fps": 30,
+    "duration_s": 8.0,
+    "frames": 240,
+    "probe_enabled": true,
+    "probe_contact_frames": 226,
+    "probe_max_contacts": 7,
+    "mujoco_version": "3.10.0",
+    "ffmpeg": [
+      "ffmpeg",
+      "-y",
+      "-f",
+      "rawvideo",
+      "-vcodec",
+      "rawvideo",
+      "-pix_fmt",
+      "rgb24",
+      "-s",
+      "640x480",
+      "-r",
+      "30",
+      "-i",
+      "-",
+      "-an",
+      "-c:v",
+      "libx264",
+      "-preset",
+      "medium",
+      "-crf",
+      "20",
+      "-pix_fmt",
+      "yuv420p",
+      "-movflags",
+      "+faststart",
+      "video/scene_preview.mp4"
+    ],
+    "created_at": "2026-07-23T05:54:43.538424+00:00"
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "size": 1254,
+      "sha256": "ba466a5d7539e38f516c5cbed733213c3ad4686495b67b9a1b5d94db7b55db89"
+    },
+    {
+      "path": "scene.mtl",
+      "size": 139,
+      "sha256": "6beb8370695d997d1d316b1af0e48ebdd6a380c973ecce7132b6a85df611d451"
+    },
+    {
+      "path": "scene.obj",
+      "size": 10548701,
+      "sha256": "ac2d25927782bad908aaf0d9ff9576bf32c7d0b24ed4bcee5c873546e071cf1a"
+    },
+    {
+      "path": "scene.xml",
+      "size": 15196,
+      "sha256": "6fd37474fad0a930dcaa3a4e7bd5113ff6f783cb299fed2c26d30b2e393951db"
+    },
+    {
+      "path": "scene_collision_000.obj",
+      "size": 3666,
+      "sha256": "02d3da473cf29df889f4429c44000576307b687b3f2f8068ed25526bf0376143"
+    },
+    {
+      "path": "scene_collision_001.obj",
+      "size": 3686,
+      "sha256": "bbb2f6485b3ebb17878096f0e0032c329159f67606e0111364a50c72c1448da4"
+    },
+    {
+      "path": "scene_collision_002.obj",
+      "size": 3707,
+      "sha256": "dfecd25cdb57fd0b09fd539d3b46edd70c23768206768aeb792963a1a8df7f67"
+    },
+    {
+      "path": "scene_collision_003.obj",
+      "size": 631,
+      "sha256": "5c849bfdb748f25c92e7a722ec208408933d77a7bb5b72fcdd8a8ef7a0b8cae7"
+    },
+    {
+      "path": "scene_collision_004.obj",
+      "size": 3733,
+      "sha256": "b1551c01220e13f27cf1dd0f903187c05423d1c55ee377a5a2986047052ddece"
+    },
+    {
+      "path": "scene_collision_005.obj",
+      "size": 3608,
+      "sha256": "7de3cca185d08867df70244b4bbe390ffebfb8b2421cc0922c715fbba820052a"
+    },
+    {
+      "path": "scene_collision_006.obj",
+      "size": 3586,
+      "sha256": "fdfb040afd7ad699bc7c3db14c0dc950a97ad85a010a9a7d1e04bfbdc7a35783"
+    },
+    {
+      "path": "scene_collision_007.obj",
+      "size": 3625,
+      "sha256": "16217fc035036ded36790d16f93c27fbba39d76dc10859e0765f5953769fbfc7"
+    },
+    {
+      "path": "scene_collision_008.obj",
+      "size": 3641,
+      "sha256": "2644f45fb615146962600f7f3298adb4357d0d440aecfed3ae9a1a57d83fce00"
+    },
+    {
+      "path": "scene_collision_009.obj",
+      "size": 3634,
+      "sha256": "9292be7326e329b323a25b10bcd632c95020c9fe39f4808dcb9cdfd9760987de"
+    },
+    {
+      "path": "scene_collision_010.obj",
+      "size": 3573,
+      "sha256": "c6c5648136a0b3a9125203fa33da32fb1e20f37fb1ce774edba65defcb2cc886"
+    },
+    {
+      "path": "scene_collision_011.obj",
+      "size": 3722,
+      "sha256": "b9cd36fd3fb6ff0c6daf33396552d7144cc37ebd17cc178198dd9b013e38089d"
+    },
+    {
+      "path": "scene_collision_012.obj",
+      "size": 3644,
+      "sha256": "34789ab52e9acae0466808e6d642272e56e34fc6b33efe9fcbce89c5431a210b"
+    },
+    {
+      "path": "scene_collision_013.obj",
+      "size": 3650,
+      "sha256": "c2710ea7f48564761bf758141d4972fe45432db7e95d7fdb16da2fa4dacd09a4"
+    },
+    {
+      "path": "scene_collision_014.obj",
+      "size": 3762,
+      "sha256": "8250a534acf76dadbdbc5c6668a00239112e3ff54eb270bbcc06154f0542ccab"
+    },
+    {
+      "path": "scene_collision_015.obj",
+      "size": 3596,
+      "sha256": "582ff0c3dc61e2a07145c4fa5ebd42525b880a39cebdeeb703ae41a9a5de004e"
+    },
+    {
+      "path": "scene_collision_016.obj",
+      "size": 3711,
+      "sha256": "3d9268e8f6e013b945363a410b09b4de12199ee4fc067ed2f145d509b701872e"
+    },
+    {
+      "path": "scene_collision_017.obj",
+      "size": 2243,
+      "sha256": "afcecf43d51c65905c421a1ea2c35ac4cd16ae0d38ec12eac4095c7a41f3da82"
+    },
+    {
+      "path": "scene_collision_018.obj",
+      "size": 3214,
+      "sha256": "94370a3b2edde4c08e2deb4e7606ba834f81cc78741341d63b9ae4102b7ab05f"
+    },
+    {
+      "path": "scene_collision_019.obj",
+      "size": 3634,
+      "sha256": "1303130f4291ff2727641fb393bf60d9da9e3cc0d8664be4347d3e702c4f5c73"
+    },
+    {
+      "path": "scene_collision_020.obj",
+      "size": 3534,
+      "sha256": "7b790a9b8e7dee1d484779923139bdc2837e42cf6bd06cce95896dcd76c3ed20"
+    },
+    {
+      "path": "scene_collision_021.obj",
+      "size": 3546,
+      "sha256": "3adb4b0f5afbb76e6981dd9d7cef1c7793a9b748217f96db8589711cae8d187e"
+    },
+    {
+      "path": "scene_collision_022.obj",
+      "size": 3197,
+      "sha256": "8cd68873b5a55bd2eacb6de2493509eb2ed42745d254a272ed55df755328b547"
+    },
+    {
+      "path": "scene_collision_023.obj",
+      "size": 3662,
+      "sha256": "347b691a351cdbf7e920651add12695f2a6002b0699ad8122d3fde3dc19b33ae"
+    },
+    {
+      "path": "scene_collision_024.obj",
+      "size": 3703,
+      "sha256": "e9fa41a5ca3cd28e4607b8dba633b09466259d9846bedc536280f8bdcbfbaacb"
+    },
+    {
+      "path": "scene_collision_025.obj",
+      "size": 3675,
+      "sha256": "10f0d45e1d95669f8699b155d308f1c430b2c31f5ae0f983e07a4ba7020cf662"
+    },
+    {
+      "path": "scene_collision_026.obj",
+      "size": 3664,
+      "sha256": "52e0ed48f017a0df8ee3c6111e491eb11a56f9653a7c9f01f2c4fe23c60da60d"
+    },
+    {
+      "path": "scene_collision_027.obj",
+      "size": 3704,
+      "sha256": "449fa6a9311134ac733bd126c3df4076af53ae0255e74d2485c9f3b5a86ef038"
+    },
+    {
+      "path": "scene_collision_028.obj",
+      "size": 3610,
+      "sha256": "b3f15a12d4bb151a368f0faf9b2d0e488430361f13ddfc57229c783f201add8a"
+    },
+    {
+      "path": "scene_collision_029.obj",
+      "size": 3706,
+      "sha256": "5ff68a3b54d2887fcf2763d9af9f4229eb607deb1d648f1f48efbf35a58f06f4"
+    },
+    {
+      "path": "scene_collision_030.obj",
+      "size": 3635,
+      "sha256": "5fb2e40d0c142b88313260ebc92b9634929f9f9b5d11eb0b42e2e782d0fd0fbc"
+    },
+    {
+      "path": "scene_collision_031.obj",
+      "size": 3702,
+      "sha256": "9763b40ca308c4db76a85526219404ecdf2a96d028e3f538eefda249cfb5c4fc"
+    },
+    {
+      "path": "scene_collision_032.obj",
+      "size": 2018,
+      "sha256": "91fe68904fdf02ceea6722612bfd26034c25aa164c444245482f19cf21d28b9b"
+    },
+    {
+      "path": "scene_collision_033.obj",
+      "size": 3660,
+      "sha256": "1a3f38698808f5a42389643e4f606a0df9654f3f95621fcb76099e4fa2c83001"
+    },
+    {
+      "path": "scene_collision_034.obj",
+      "size": 2085,
+      "sha256": "515a6876a43a234427e400248d4e39287a0f32a07958112e75b85b27d7de3c7a"
+    },
+    {
+      "path": "scene_collision_035.obj",
+      "size": 3648,
+      "sha256": "e6dc79820b265c6d476baadac06e9156a843d1ee8b7df807ad7ff43f68643f2e"
+    },
+    {
+      "path": "scene_collision_036.obj",
+      "size": 3286,
+      "sha256": "3f23cb668f5ffbd40bd1d02450247d68b5f18cd57552259985bf3138e9379fae"
+    },
+    {
+      "path": "scene_collision_037.obj",
+      "size": 3666,
+      "sha256": "a3539e02d45782297de43f38d2bbd8f044aae64b0dd84330709be9d2bd2ab3ef"
+    },
+    {
+      "path": "scene_collision_038.obj",
+      "size": 663,
+      "sha256": "a0e0f997fd8be8655a479147c792a598beb5206afd50ee71a7752119bfc4e44d"
+    },
+    {
+      "path": "scene_collision_039.obj",
+      "size": 3713,
+      "sha256": "1d55b2843aa29037ecce412cd9e2e7ff20bc3ea9cfde26d70ee58ed356c29437"
+    },
+    {
+      "path": "scene_collision_040.obj",
+      "size": 3708,
+      "sha256": "d3165d5511af47e72f10e4a89143cfdf5a06f40abddd39a66ad791c85ea94b4b"
+    },
+    {
+      "path": "scene_collision_041.obj",
+      "size": 3590,
+      "sha256": "f088959c9dac6ef9ef06914aeac8248af0142fbb073b8199b9e106b2e65ae5b2"
+    },
+    {
+      "path": "scene_collision_042.obj",
+      "size": 3707,
+      "sha256": "1803c302363e65525df68339c475ea94cba2ebd5a65c8433b7a0c5f578b422b5"
+    },
+    {
+      "path": "scene_collision_043.obj",
+      "size": 3664,
+      "sha256": "48a652684ee9872c66440e82974247ad014721924e87b027496acbe9b4f6adfe"
+    },
+    {
+      "path": "scene_collision_044.obj",
+      "size": 3582,
+      "sha256": "20320a94e1128b8166b21467ae66d452e0d79bc1944267ea1a7aae4853bca665"
+    },
+    {
+      "path": "scene_collision_045.obj",
+      "size": 2449,
+      "sha256": "065291bead86c436474edfc50a6a77fd5ecfe0db3dfd21b607457b94df28c785"
+    },
+    {
+      "path": "scene_collision_046.obj",
+      "size": 3524,
+      "sha256": "97b8b40b49e70f0bcc567eae1fdae25bb5ddd730fa12e7235b49e31b9fc305b2"
+    },
+    {
+      "path": "scene_collision_047.obj",
+      "size": 977,
+      "sha256": "334a63ad43041882332f81caa7586a46ef11ecab14744db7ba027a360cb14193"
+    },
+    {
+      "path": "scene_collision_048.obj",
+      "size": 3585,
+      "sha256": "c6638f0b1f108e05f52c93fdd0911b64514c96cd7379da0c4c0326b98278efdb"
+    },
+    {
+      "path": "scene_collision_049.obj",
+      "size": 3715,
+      "sha256": "5407f39e99fb445a0eea01bad4877621156f7a371bde6f44187a6aec8fe3a27f"
+    },
+    {
+      "path": "scene_collision_050.obj",
+      "size": 3717,
+      "sha256": "7ac2a26cc5a357458f65b05fef9fd441f2739cf529469fa31b1753fe3a44f5cd"
+    },
+    {
+      "path": "scene_collision_051.obj",
+      "size": 3600,
+      "sha256": "47bbb4413465468ea221596821238eca3a7ad6834164b0d166e1c87cda531b4f"
+    },
+    {
+      "path": "scene_collision_052.obj",
+      "size": 3649,
+      "sha256": "7bc3263e827179a64c82ff52a768e2dc06787a99f4f346aa2b51815054d5a5e8"
+    },
+    {
+      "path": "scene_collision_053.obj",
+      "size": 3659,
+      "sha256": "4e9d9891500e5b67e39f000cc78364b5f65a202b8d125ff7e0fa5a0b23e89f38"
+    },
+    {
+      "path": "scene_collision_054.obj",
+      "size": 2650,
+      "sha256": "1320178442a9ad53105309cbe34d230ea9595560ffb4697e69c22ebf9655eb56"
+    },
+    {
+      "path": "scene_collision_055.obj",
+      "size": 433,
+      "sha256": "be74eaa1e1702a9ba00f40d8831cbcdb1c41a38efc0a3cd56f8f549694f43805"
+    },
+    {
+      "path": "scene_collision_056.obj",
+      "size": 3651,
+      "sha256": "f365f874b5754f8486fe31cadd82f858812c84cd61c56dcb3d33c420b0ec3dfe"
+    },
+    {
+      "path": "scene_collision_057.obj",
+      "size": 3712,
+      "sha256": "768433156b13b4a1f4e0bdf7c0912ad87458e32383001f1f5ca00c63edbe4745"
+    },
+    {
+      "path": "scene_collision_058.obj",
+      "size": 3546,
+      "sha256": "65941e5fac06b9f60d15c32828f2b41546cb4c091d75cee16eb8c579ad788c69"
+    },
+    {
+      "path": "scene_collision_059.obj",
+      "size": 3615,
+      "sha256": "48b98ae3fd17186047a33dfe9a0ad733be2fa6b2ef98cee92ad939742805ab6a"
+    },
+    {
+      "path": "scene_collision_060.obj",
+      "size": 3651,
+      "sha256": "9a8c9fb9785424c6e80387a263cc39d0e23c0eb7400aac28a7f727d144f1df90"
+    },
+    {
+      "path": "scene_collision_061.obj",
+      "size": 3683,
+      "sha256": "59e0427a8726af6ef7f56a877b3f0830883f489c62e874ae9555b4167823d6fa"
+    },
+    {
+      "path": "scene_collision_062.obj",
+      "size": 3652,
+      "sha256": "d62b6032922bf3855498d9df7b7ef94b41f44eb5b2c097ebf57c8a6cb074aaa8"
+    },
+    {
+      "path": "scene_collision_063.obj",
+      "size": 3641,
+      "sha256": "6da24b01cf8ac2102a1411ed008e35a4f37991224033ad3de1b6c0a1336e5902"
+    },
+    {
+      "path": "transform.json",
+      "size": 2643,
+      "sha256": "bb3b67dc21c413a81cf11f58dcfe8a805f592e65c544fc1e5f1ac0b74fce64f5"
+    },
+    {
+      "path": "validation.json",
+      "size": 2662,
+      "sha256": "f431179ea5375f436ad29267d4c555d33a4342592bbe195c503ae241be1e16c0"
+    },
+    {
+      "path": "video/scene_preview.json",
+      "size": 737,
+      "sha256": "cb957ea66704c6888e00ccd930d1dbffade52ebbf96d5316b9ee7d4c0455c18e"
+    },
+    {
+      "path": "video/scene_preview.mp4",
+      "size": 1264190,
+      "sha256": "0b27e1927a4dd441ca7cc57576fbf020b9a17a8a8882c6aa20c5bb8642abd19c"
+    }
+  ]
+}

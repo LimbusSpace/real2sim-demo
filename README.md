@@ -213,6 +213,10 @@ The one-meter extent is a reproducible demonstration scale, not real-world calib
 stage does not infer independent object motion, mass or inertia, material friction, joints,
 automatic instance segmentation, grasp semantics, collision layers, or robot models.
 
+A ready-to-run, CI-verified package containing `scene.xml`, all visual/collision meshes, the
+validation report, transform provenance, and preview video is checked in at
+[`examples/tabletop_v1_physics`](examples/tabletop_v1_physics/README.md).
+
 ## Reproducibility Contract
 
 The Python package is locked by `uv.lock`. External GPU software is pinned or verified as

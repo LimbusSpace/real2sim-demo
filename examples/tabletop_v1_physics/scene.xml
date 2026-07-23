@@ -1,0 +1,150 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="scene">
+  <compiler angle="radian" meshdir="." />
+  <option gravity="0 0 -9.81" />
+  <default>
+    <default class="visual">
+      <geom group="2" type="mesh" contype="0" conaffinity="0" />
+    </default>
+    <default class="collision">
+      <geom group="3" type="mesh" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+    </default>
+  </default>
+  <asset>
+    <material name="material_0" specular="0.4000000000000001" shininess="0.001" rgba="0.53725490 0.51372549 0.47843137 1.0" />
+    <mesh file="scene.obj" />
+    <mesh name="scene_collision_000" file="scene_collision_000.obj" />
+    <mesh name="scene_collision_001" file="scene_collision_001.obj" />
+    <mesh name="scene_collision_002" file="scene_collision_002.obj" />
+    <mesh name="scene_collision_003" file="scene_collision_003.obj" />
+    <mesh name="scene_collision_004" file="scene_collision_004.obj" />
+    <mesh name="scene_collision_005" file="scene_collision_005.obj" />
+    <mesh name="scene_collision_006" file="scene_collision_006.obj" />
+    <mesh name="scene_collision_007" file="scene_collision_007.obj" />
+    <mesh name="scene_collision_008" file="scene_collision_008.obj" />
+    <mesh name="scene_collision_009" file="scene_collision_009.obj" />
+    <mesh name="scene_collision_010" file="scene_collision_010.obj" />
+    <mesh name="scene_collision_011" file="scene_collision_011.obj" />
+    <mesh name="scene_collision_012" file="scene_collision_012.obj" />
+    <mesh name="scene_collision_013" file="scene_collision_013.obj" />
+    <mesh name="scene_collision_014" file="scene_collision_014.obj" />
+    <mesh name="scene_collision_015" file="scene_collision_015.obj" />
+    <mesh name="scene_collision_016" file="scene_collision_016.obj" />
+    <mesh name="scene_collision_017" file="scene_collision_017.obj" />
+    <mesh name="scene_collision_018" file="scene_collision_018.obj" />
+    <mesh name="scene_collision_019" file="scene_collision_019.obj" />
+    <mesh name="scene_collision_020" file="scene_collision_020.obj" />
+    <mesh name="scene_collision_021" file="scene_collision_021.obj" />
+    <mesh name="scene_collision_022" file="scene_collision_022.obj" />
+    <mesh name="scene_collision_023" file="scene_collision_023.obj" />
+    <mesh name="scene_collision_024" file="scene_collision_024.obj" />
+    <mesh name="scene_collision_025" file="scene_collision_025.obj" />
+    <mesh name="scene_collision_026" file="scene_collision_026.obj" />
+    <mesh name="scene_collision_027" file="scene_collision_027.obj" />
+    <mesh name="scene_collision_028" file="scene_collision_028.obj" />
+    <mesh name="scene_collision_029" file="scene_collision_029.obj" />
+    <mesh name="scene_collision_030" file="scene_collision_030.obj" />
+    <mesh name="scene_collision_031" file="scene_collision_031.obj" />
+    <mesh name="scene_collision_032" file="scene_collision_032.obj" />
+    <mesh name="scene_collision_033" file="scene_collision_033.obj" />
+    <mesh name="scene_collision_034" file="scene_collision_034.obj" />
+    <mesh name="scene_collision_035" file="scene_collision_035.obj" />
+    <mesh name="scene_collision_036" file="scene_collision_036.obj" />
+    <mesh name="scene_collision_037" file="scene_collision_037.obj" />
+    <mesh name="scene_collision_038" file="scene_collision_038.obj" />
+    <mesh name="scene_collision_039" file="scene_collision_039.obj" />
+    <mesh name="scene_collision_040" file="scene_collision_040.obj" />
+    <mesh name="scene_collision_041" file="scene_collision_041.obj" />
+    <mesh name="scene_collision_042" file="scene_collision_042.obj" />
+    <mesh name="scene_collision_043" file="scene_collision_043.obj" />
+    <mesh name="scene_collision_044" file="scene_collision_044.obj" />
+    <mesh name="scene_collision_045" file="scene_collision_045.obj" />
+    <mesh name="scene_collision_046" file="scene_collision_046.obj" />
+    <mesh name="scene_collision_047" file="scene_collision_047.obj" />
+    <mesh name="scene_collision_048" file="scene_collision_048.obj" />
+    <mesh name="scene_collision_049" file="scene_collision_049.obj" />
+    <mesh name="scene_collision_050" file="scene_collision_050.obj" />
+    <mesh name="scene_collision_051" file="scene_collision_051.obj" />
+    <mesh name="scene_collision_052" file="scene_collision_052.obj" />
+    <mesh name="scene_collision_053" file="scene_collision_053.obj" />
+    <mesh name="scene_collision_054" file="scene_collision_054.obj" />
+    <mesh name="scene_collision_055" file="scene_collision_055.obj" />
+    <mesh name="scene_collision_056" file="scene_collision_056.obj" />
+    <mesh name="scene_collision_057" file="scene_collision_057.obj" />
+    <mesh name="scene_collision_058" file="scene_collision_058.obj" />
+    <mesh name="scene_collision_059" file="scene_collision_059.obj" />
+    <mesh name="scene_collision_060" file="scene_collision_060.obj" />
+    <mesh name="scene_collision_061" file="scene_collision_061.obj" />
+    <mesh name="scene_collision_062" file="scene_collision_062.obj" />
+    <mesh name="scene_collision_063" file="scene_collision_063.obj" />
+  </asset>
+  <worldbody>
+    <body name="scene">
+      <geom material="material_0" mesh="scene" class="visual" contype="0" conaffinity="0" group="2" />
+      <geom name="scene_collision_000" class="collision" mesh="scene_collision_000" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_001" class="collision" mesh="scene_collision_001" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_002" class="collision" mesh="scene_collision_002" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_003" class="collision" mesh="scene_collision_003" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_004" class="collision" mesh="scene_collision_004" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_005" class="collision" mesh="scene_collision_005" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_006" class="collision" mesh="scene_collision_006" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_007" class="collision" mesh="scene_collision_007" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_008" class="collision" mesh="scene_collision_008" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_009" class="collision" mesh="scene_collision_009" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_010" class="collision" mesh="scene_collision_010" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_011" class="collision" mesh="scene_collision_011" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_012" class="collision" mesh="scene_collision_012" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_013" class="collision" mesh="scene_collision_013" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_014" class="collision" mesh="scene_collision_014" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_015" class="collision" mesh="scene_collision_015" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_016" class="collision" mesh="scene_collision_016" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_017" class="collision" mesh="scene_collision_017" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_018" class="collision" mesh="scene_collision_018" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_019" class="collision" mesh="scene_collision_019" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_020" class="collision" mesh="scene_collision_020" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_021" class="collision" mesh="scene_collision_021" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_022" class="collision" mesh="scene_collision_022" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_023" class="collision" mesh="scene_collision_023" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_024" class="collision" mesh="scene_collision_024" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_025" class="collision" mesh="scene_collision_025" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_026" class="collision" mesh="scene_collision_026" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_027" class="collision" mesh="scene_collision_027" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_028" class="collision" mesh="scene_collision_028" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_029" class="collision" mesh="scene_collision_029" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_030" class="collision" mesh="scene_collision_030" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_031" class="collision" mesh="scene_collision_031" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_032" class="collision" mesh="scene_collision_032" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_033" class="collision" mesh="scene_collision_033" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_034" class="collision" mesh="scene_collision_034" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_035" class="collision" mesh="scene_collision_035" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_036" class="collision" mesh="scene_collision_036" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_037" class="collision" mesh="scene_collision_037" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_038" class="collision" mesh="scene_collision_038" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_039" class="collision" mesh="scene_collision_039" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_040" class="collision" mesh="scene_collision_040" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_041" class="collision" mesh="scene_collision_041" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_042" class="collision" mesh="scene_collision_042" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_043" class="collision" mesh="scene_collision_043" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_044" class="collision" mesh="scene_collision_044" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_045" class="collision" mesh="scene_collision_045" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_046" class="collision" mesh="scene_collision_046" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_047" class="collision" mesh="scene_collision_047" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_048" class="collision" mesh="scene_collision_048" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_049" class="collision" mesh="scene_collision_049" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_050" class="collision" mesh="scene_collision_050" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_051" class="collision" mesh="scene_collision_051" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_052" class="collision" mesh="scene_collision_052" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_053" class="collision" mesh="scene_collision_053" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_054" class="collision" mesh="scene_collision_054" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_055" class="collision" mesh="scene_collision_055" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_056" class="collision" mesh="scene_collision_056" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_057" class="collision" mesh="scene_collision_057" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_058" class="collision" mesh="scene_collision_058" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_059" class="collision" mesh="scene_collision_059" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_060" class="collision" mesh="scene_collision_060" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_061" class="collision" mesh="scene_collision_061" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_062" class="collision" mesh="scene_collision_062" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+      <geom name="scene_collision_063" class="collision" mesh="scene_collision_063" contype="1" conaffinity="1" condim="4" friction="1 0.005 0.0001" />
+    </body>
+  </worldbody>
+</mujoco>
