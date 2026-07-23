@@ -7,10 +7,11 @@ The current milestones are:
 ```text
 casual video -> extracted frames -> COLMAP cameras/sparse points -> HY-World 3DGS -> PLY
                                       \-> official 2DGS -> bounded TSDF -> colored mesh
+                                                                          \-> CoACD -> static MuJoCo MJCF
 ```
 
-Instance segmentation, collision generation, metric calibration, and MuJoCo are intentionally
-outside these milestones.
+Object-level instance dynamics, measured metric calibration, mass identification, and joint
+inference remain outside these milestones.
 
 ## Stage 1
 
@@ -138,6 +139,67 @@ rejects a post-processed mesh larger than the raw mesh. A capture with incomplet
 coverage can still leave holes in unseen surfaces; Stage 2 does not claim simulation-ready
 geometry or repair those regions.
 
+## Stage 3
+
+Stage 3 is the independent `real2sim-physics` flow. It consumes a completed Stage 2
+`mesh/post.ply`, fits the dominant tabletop support plane, rotates it to MuJoCo z-up coordinates,
+normalizes the scene's largest extent to one meter, and exports a static environment body. The
+entire reconstructed tabletop remains one environment asset; Stage 3 does not add a free joint
+or claim object-level rigid-body separation.
+
+Install the exact CPU physics toolchain and verify it:
+
+```powershell
+uv sync --frozen --group dev --group physics
+./scripts/check_physics_env.ps1
+```
+
+The pinned dependencies are [CoACD](https://github.com/SarahWeiii/CoACD) 1.0.11 (MIT),
+[obj2mjcf](https://github.com/kevinzakka/obj2mjcf) 0.0.25 (MIT),
+[MuJoCo](https://github.com/google-deepmind/mujoco) 3.10.0 (Apache-2.0),
+[trimesh](https://github.com/mikedh/trimesh) 4.12.2 (MIT), and
+[fast-simplification](https://github.com/pyvista/fast-simplification) 0.1.13 (MIT).
+The machine-readable list is `reproducibility/physics.snapshot.json`.
+
+Inspect or run the complete tabletop conversion:
+
+```powershell
+$env:REAL2SIM_ASSETS = "E:\real2sim-assets"
+uv run real2sim-physics --config configs/stage3.tabletop_v1.toml --dry-run
+uv run real2sim-physics --config configs/stage3.tabletop_v1.toml
+```
+
+Individual stages are available through `--stage prepare|decompose|mjcf|validate`; input and
+output can be overridden with `--input-mesh-run-dir` and `--output-dir`. CoACD is invoked by a
+separate helper with `real_metric=true`; obj2mjcf handles the visual OBJ/material and base MJCF,
+then Stage 3 replaces its fallback collision geometry with the CoACD convex pieces. Final
+acceptance directly calls `mujoco.MjModel.from_xml_path` and executes ten `mj_step` calls.
+
+```text
+<stage3_output>/
+  manifest.json                 # real2sim.physics.v1, final stage: validated
+  trace.json
+  provenance.json
+  validation.json
+  source/
+    scene.obj
+    scene.mtl
+    transform.json
+  collision/
+    scene_collision_000.obj
+    ...
+  mjcf/
+    scene.xml
+    scene.obj
+    scene.mtl
+    scene_collision_*.obj
+  logs/
+```
+
+The one-meter extent is a reproducible demonstration scale, not real-world calibration. This
+stage does not infer independent object motion, mass or inertia, material friction, joints,
+automatic instance segmentation, grasp semantics, collision layers, or robot models.
+
 ## Reproducibility Contract
 
 The Python package is locked by `uv.lock`. External GPU software is pinned or verified as
@@ -150,6 +212,8 @@ follows:
 | HY-World 2.0 | commit `7f668e67c74338d50684e57be46a438459b6bbe1` |
 | PyTorch | 2.7.1 + CUDA 12.8 |
 | FFmpeg | modern build with H.264/HEVC decode support |
+| CoACD / obj2mjcf | 1.0.11 / 0.0.25 |
+| MuJoCo | 3.10.0 |
 
 Large binaries, model weights, videos, and run outputs are deliberately excluded from Git.
 Their locations are supplied through environment variables. The checked-in
@@ -172,7 +236,7 @@ Install the orchestration package and its locked development environment:
 ```powershell
 git clone https://github.com/LimbusSpace/real2sim-demo.git
 cd real2sim-demo
-uv sync --frozen --group dev
+uv sync --frozen --group dev --group physics
 ```
 
 Install COLMAP 4.1.1 CUDA from the official
@@ -338,6 +402,7 @@ uv sync --frozen --group dev
 uv run pytest -q
 uv run ruff check .
 uv run mypy src
+uv run real2sim-physics --config configs/stage3.tabletop_v1.toml --dry-run
 ```
 
 GitHub Actions runs the same checks plus a full dry-run on every push and pull request.

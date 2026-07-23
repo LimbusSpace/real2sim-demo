@@ -1,0 +1,36 @@
+{
+  "schema": "real2sim.physics_environment.v1",
+  "python": "3.11",
+  "packages": [
+    {
+      "name": "coacd",
+      "version": "1.0.11",
+      "license": "MIT",
+      "url": "https://github.com/SarahWeiii/CoACD"
+    },
+    {
+      "name": "obj2mjcf",
+      "version": "0.0.25",
+      "license": "MIT",
+      "url": "https://github.com/kevinzakka/obj2mjcf"
+    },
+    {
+      "name": "mujoco",
+      "version": "3.10.0",
+      "license": "Apache-2.0",
+      "url": "https://github.com/google-deepmind/mujoco"
+    },
+    {
+      "name": "trimesh",
+      "version": "4.12.2",
+      "license": "MIT",
+      "url": "https://github.com/mikedh/trimesh"
+    },
+    {
+      "name": "fast-simplification",
+      "version": "0.1.13",
+      "license": "MIT",
+      "url": "https://github.com/pyvista/fast-simplification"
+    }
+  ]
+}

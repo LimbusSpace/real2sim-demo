@@ -1,9 +1,11 @@
 # Public Reproduction Guide
 
-This repository reproduces the Stage 1 pipeline only:
+This repository provides reproducible orchestration for three stages:
 
 ```text
-video -> COLMAP cameras and sparse points -> HY-World 3DGS -> Gaussian PLY
+video -> COLMAP/HY-World -> Gaussian PLY
+      -> official 2DGS -> colored mesh
+      -> CoACD/obj2mjcf -> static MuJoCo environment
 ```
 
 It does not claim to reproduce the private `tabletop_v1` video or any later
@@ -30,7 +32,7 @@ Clone this repository and install the locked developer environment:
 ```powershell
 git clone https://github.com/LimbusSpace/real2sim-demo.git
 Set-Location real2sim-demo
-uv sync --frozen --group dev
+uv sync --frozen --group dev --group physics
 ```
 
 Download the fixed HY-World archive. On Windows, use Free Download Manager:
@@ -64,6 +66,12 @@ uv run real2sim-verify-snapshot `
 The hash verification rejects a source tree that is at the right repository
 revision but contains modified required trainer or dependency files.
 
+Verify the locked Stage 3 CPU environment separately:
+
+```powershell
+./scripts/check_physics_env.ps1
+```
+
 ## Run and Accept
 
 First inspect the complete external command plan without running GPU software:
@@ -87,6 +95,8 @@ and bundle adjustment are not expected to be bitwise identical across GPUs.
 ## GitHub CI Scope
 
 GitHub Actions runs the locked Python tests, Ruff, mypy, and dry-runs for both
-the public Sceaux configuration and the generic phone-video configuration. It
-does not download multi-gigabyte external software or run COLMAP/CUDA training.
-The commands above are the required hardware-backed reproduction path.
+the reconstruction and physics configurations. A synthetic cube fixture executes
+CoACD, obj2mjcf, MuJoCo compilation, and `mj_step` on CPU. CI does not download
+multi-gigabyte external reconstruction software or run COLMAP/CUDA training. The
+commands above are the required hardware-backed reconstruction path; a completed
+Stage 2 mesh can be converted with `real2sim-physics` as documented in the root README.

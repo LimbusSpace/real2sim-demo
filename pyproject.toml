@@ -17,10 +17,18 @@ dev = [
   "pytest>=8.3.0",
   "ruff>=0.6.0",
 ]
+physics = [
+  "coacd==1.0.11",
+  "fast-simplification==0.1.13",
+  "mujoco==3.10.0",
+  "obj2mjcf==0.0.25",
+  "trimesh==4.12.2",
+]
 
 [project.scripts]
 real2sim = "real2sim_demo.cli:main"
 real2sim-mesh = "real2sim_demo.mesh_cli:main"
+real2sim-physics = "real2sim_demo.physics_cli:main"
 real2sim-verify-snapshot = "real2sim_demo.snapshot:main"
 
 [tool.hatch.build.targets.wheel]
