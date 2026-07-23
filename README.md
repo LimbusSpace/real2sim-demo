@@ -175,12 +175,25 @@ separate helper with `real_metric=true`; obj2mjcf handles the visual OBJ/materia
 then Stage 3 replaces its fallback collision geometry with the CoACD convex pieces. Final
 acceptance directly calls `mujoco.MjModel.from_xml_path` and executes ten `mj_step` calls.
 
+Render a reproducible MP4 preview from the validated scene. The temporary probe bodies are only
+used for the video and are never written into the final static `scene.xml`:
+
+```powershell
+uv run python scripts/render_physics_video.py `
+  --scene "$env:REAL2SIM_ASSETS\runs\tabletop_v1_physics\mjcf\scene.xml" `
+  --output "$env:REAL2SIM_ASSETS\runs\tabletop_v1_physics\videos\scene_preview.mp4" `
+  --manifest "$env:REAL2SIM_ASSETS\runs\tabletop_v1_physics\manifest.json"
+```
+
 ```text
 <stage3_output>/
   manifest.json                 # real2sim.physics.v1, final stage: validated
   trace.json
   provenance.json
   validation.json
+  videos/
+    scene_preview.mp4
+    scene_preview.json
   source/
     scene.obj
     scene.mtl
