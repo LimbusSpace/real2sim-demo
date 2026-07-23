@@ -10,6 +10,6 @@
 *.mp4 binary
 examples/tabletop_v1_physics/*.obj binary
 examples/tabletop_v1_physics/*.mtl text eol=lf
-examples/tabletop_v1_physics/*.xml text eol=lf
+examples/tabletop_v1_physics/*.xml binary
 examples/tabletop_v1_physics/*.json text eol=lf
 examples/tabletop_v1_physics/*.md text eol=lf
