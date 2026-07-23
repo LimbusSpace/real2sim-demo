@@ -5,7 +5,7 @@ An end-to-end real2sim pipeline, built one inspectable stage at a time.
 The current milestones are:
 
 ```text
-casual video -> extracted frames -> COLMAP cameras/sparse points -> HY-World 3DGS -> PLY
+casual video -> extracted frames -> COLMAP or MASt3R-SfM -> HY-World 3DGS -> PLY
                                       \-> official 2DGS -> bounded TSDF -> colored mesh
                                                                           \-> CoACD -> static MuJoCo MJCF
 ```
@@ -18,26 +18,35 @@ inference remain outside these milestones.
 ```mermaid
 flowchart LR
     A[Phone video] --> B[FFmpeg frames]
-    B --> C[COLMAP feature matching]
-    C --> D[COLMAP sparse reconstruction]
-    D --> E[Undistorted images and text model]
-    E --> F[HY-World dataset adapter]
-    F --> G[HY-World 3DGS trainer]
-    G --> H[Gaussian PLY]
+    B --> C{SfM backend}
+    C -->|COLMAP| D[Feature matching and mapping]
+    C -->|MASt3R| E[Pair graph and sparse global alignment]
+    D --> F[COLMAP-compatible text model]
+    E --> F
+    F --> G[HY-World dataset adapter]
+    G --> H[HY-World 3DGS trainer]
+    H --> I[Gaussian PLY]
 ```
 
 Every run writes a manifest, trace, per-command logs, intermediate camera data, held-out
-renders, and the final Gaussian PLY path. COLMAP and HY-World remain external tools; this
+renders, and the final Gaussian PLY path. COLMAP, MASt3R, and HY-World remain external tools; this
 repository provides orchestration and the required data adapter rather than copying their
 implementations. The configured HY-World source revision is also stored in each run manifest
 and Gaussian provenance file.
 
+Select the SfM implementation with `[sfm].backend = "colmap"` or `"mast3r"`. The MASt3R
+adapter runs the official `make_pairs + sparse_global_alignment` MASt3R-SfM path and exports
+its poses, intrinsics, and sparse points as the same COLMAP text schema consumed downstream.
+The upstream MASt3R code and checkpoint are licensed for non-commercial use; review its
+license and checkpoint notice before use.
+
 ## Stage 2
 
-Stage 2 is an independent `real2sim-mesh` flow. It reuses the undistorted images and COLMAP
-camera model from a completed Stage 1 run, trains the official 2D Gaussian Splatting model
-with every registered view, and exports a colored mesh with bounded TSDF fusion. The HY-World
-3DGS PLY remains a parallel Stage 1 artifact and is not used as 2DGS input.
+Stage 2 is an independent `real2sim-mesh` flow. It reuses the images and camera model from a
+completed Stage 1 run, accepting either the undistorted COLMAP binary model or the MASt3R-SfM
+COLMAP text export. It trains the official 2D Gaussian Splatting model with every registered
+view and exports a colored mesh with bounded TSDF fusion. The HY-World 3DGS PLY remains a
+parallel Stage 1 artifact and is not used as 2DGS input.
 
 The official `hbb1/2d-gaussian-splatting` code is licensed only for non-commercial research
 and evaluation. Review its `LICENSE.md` before using Stage 2. The pinned source revisions are:
@@ -108,6 +117,16 @@ uv run real2sim-mesh --config configs/stage2.tabletop_v1.toml --stage train
 uv run real2sim-mesh --config configs/stage2.tabletop_v1.toml --stage mesh
 ```
 
+For the 44-view `tabletop_v3` MASt3R-SfM reconstruction, use the dedicated downstream
+configuration. Stage 2 copies `frames/` plus `mast3r/model_txt/` into the standard 2DGS
+dataset layout; the upstream 2DGS loader reads the COLMAP text model directly:
+
+```powershell
+uv run real2sim-mesh --config configs/stage2.tabletop_v3.mast3r.toml --stage prepare
+uv run real2sim-mesh --config configs/stage2.tabletop_v3.mast3r.toml --stage train
+uv run real2sim-mesh --config configs/stage2.tabletop_v3.mast3r.toml --stage mesh
+```
+
 `--input-run-dir` and `--output-dir` override the TOML paths. The default bounded meshing
 settings leave `depth_trunc`, `voxel_size`, and `sdf_trunc` unset so upstream estimates them
 from camera scale; each can be explicitly added under `[mesh]` when tuning is required.
@@ -169,6 +188,13 @@ uv run real2sim-physics --config configs/stage3.tabletop_v1.toml --dry-run
 uv run real2sim-physics --config configs/stage3.tabletop_v1.toml
 ```
 
+The matching MASt3R tabletop configuration consumes the v3 mesh without changing the Stage 3
+physics contract:
+
+```powershell
+uv run real2sim-physics --config configs/stage3.tabletop_v3.mast3r.toml
+```
+
 Individual stages are available through `--stage prepare|decompose|mjcf|validate`; input and
 output can be overridden with `--input-mesh-run-dir` and `--output-dir`. CoACD is invoked by a
 separate helper with `real_metric=true`; obj2mjcf handles the visual OBJ/material and base MJCF,
@@ -226,6 +252,7 @@ follows:
 | --- | --- |
 | Python | 3.11 (tested with 3.11.15) |
 | COLMAP | 4.1.1 CUDA, commit `a0d785f` |
+| MASt3R | commit `f5209afc300cec36239a7ac992263f36847bbba0` |
 | HY-World 2.0 | commit `7f668e67c74338d50684e57be46a438459b6bbe1` |
 | PyTorch | 2.7.1 + CUDA 12.8 |
 | FFmpeg | modern build with H.264/HEVC decode support |
@@ -289,6 +316,9 @@ Set these variables in the PowerShell session used to run the pipeline:
 ```powershell
 $env:REAL2SIM_ASSETS = "D:\real2sim-assets"
 $env:REAL2SIM_COLMAP = "D:\tools\colmap-4.1.1\COLMAP.bat"
+$env:REAL2SIM_MAST3R_PYTHON = "C:\Users\me\.conda\envs\hyworld2\python.exe"
+$env:REAL2SIM_MAST3R_REPO = "D:\tools\mast3r"
+$env:REAL2SIM_MAST3R_WEIGHTS = "D:\weights\MASt3R_ViTLarge_BaseDecoder_512_catmlpdpt_metric.pth"
 $env:REAL2SIM_GAUSSIAN_PYTHON = "C:\Users\me\.conda\envs\hyworld2\python.exe"
 $env:REAL2SIM_HYWORLD_ROOT = "D:\tools\HY-World-2.0"
 $env:REAL2SIM_VIDEO = "D:\captures\tabletop.mp4"
@@ -364,6 +394,18 @@ Preparation and training are separate so the COLMAP registration count can be ch
 `manifest.json` before spending GPU time. For a short phone orbit, exhaustive matching is
 available in `configs/stage1.tabletop_v1.toml`.
 
+The MASt3R-SfM phone-video configurations use a cyclic `logwin-5` pair graph, shared
+intrinsics, and 300 coarse plus 300 fine optimization steps:
+
+```powershell
+uv run real2sim --config configs/stage1.tabletop_v1.mast3r.toml --stage prepare
+uv run real2sim --config configs/stage1.tabletop_v2.mast3r.toml --stage prepare
+uv run real2sim --config configs/stage1.tabletop_v3.mast3r.toml --stage prepare
+```
+
+The three-video backend comparison is recorded in
+[`reproducibility/mast3r_registration_comparison.json`](reproducibility/mast3r_registration_comparison.json).
+
 The verified tabletop run used 64 extracted frames. COLMAP registered 23 frames with 553
 sparse points; 5,000 HY-World steps produced 54,768 Gaussians and PSNR 30.986 / SSIM 0.9704
 / LPIPS 0.127 on three held-out registered views. The registered views render clearly, but
@@ -383,6 +425,10 @@ that capture does not provide complete 360-degree coverage.
     sparse/
     undistorted/
     model_txt/
+  mast3r/
+    cache/
+    model_txt/
+    stats.json
   hyworld_dataset/
     images/
     cameras.json
@@ -409,7 +455,7 @@ the corresponding command log. A checkpoint without a PLY does not count as succ
 - Avoid transparent, mirror-like, or textureless objects for the first run.
 - Move the camera position; do not only rotate in place.
 
-Monocular COLMAP reconstruction has arbitrary global scale. Metric calibration is deferred
+Monocular SfM reconstruction has arbitrary global scale. Metric calibration is deferred
 until the physics-asset milestone.
 
 ## Development

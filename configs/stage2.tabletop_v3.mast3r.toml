@@ -1,0 +1,19 @@
+# Consume the MASt3R-SfM Stage 1 camera model and original extracted frames.
+input_run_dir = "${REAL2SIM_ASSETS}/runs/tabletop_v3_mast3r"
+output_dir = "${REAL2SIM_ASSETS}/runs/tabletop_v3_mast3r_mesh"
+
+[twodgs]
+python = "${REAL2SIM_2DGS_PYTHON}"
+root = "${REAL2SIM_2DGS_ROOT}"
+source_revision = "335ad612f2e783a4e57b9cbc4d1e167bd599fc98"
+iterations = 30000
+resolution = 1
+sh_degree = 3
+depth_ratio = 0.0
+lambda_normal = 0.05
+lambda_dist = 100.0
+
+[mesh]
+mode = "bounded"
+mesh_res = 1024
+num_clusters = 50

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from shutil import which
@@ -61,7 +62,9 @@ def run_command(
         )
         assert process.stdout is not None
         for line in process.stdout:
-            print(line, end="", flush=True)
+            output_encoding = sys.stdout.encoding or "utf-8"
+            console_line = line.encode(output_encoding, errors="replace").decode(output_encoding)
+            print(console_line, end="", flush=True)
             log_file.write(line)
         returncode = process.wait()
     if returncode != 0:

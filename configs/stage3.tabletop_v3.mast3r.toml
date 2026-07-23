@@ -1,0 +1,32 @@
+input_mesh_run_dir = "${REAL2SIM_ASSETS}/runs/tabletop_v3_mast3r_mesh"
+output_dir = "${REAL2SIM_ASSETS}/runs/tabletop_v3_mast3r_physics"
+
+[geometry]
+scale_mode = "normalize_max_extent"
+target_extent_m = 1.0
+align_support_plane = true
+plane_threshold_m = 0.005
+plane_min_inlier_fraction = 0.05
+visual_face_count = 250000
+
+[coacd]
+version = "1.0.11"
+threshold_m = 0.005
+real_metric = true
+max_convex_hulls = 64
+preprocess_mode = "auto"
+preprocess_resolution = 50
+resolution = 2000
+mcts_nodes = 20
+mcts_iterations = 150
+mcts_max_depth = 3
+decimate = true
+max_ch_vertex = 64
+seed = 0
+
+[obj2mjcf]
+version = "0.0.25"
+
+[mujoco]
+version = "3.10.0"
+gravity = [0.0, 0.0, -9.81]

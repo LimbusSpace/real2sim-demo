@@ -1,0 +1,36 @@
+run_dir = "${REAL2SIM_ASSETS}/runs/tabletop_v3_mast3r"
+
+[video]
+path = "${REAL2SIM_ASSETS}/inputs/tabletop_v3.mp4"
+fps = 2.0
+ffmpeg = "ffmpeg"
+
+[sfm]
+backend = "mast3r"
+
+[mast3r]
+python = "${REAL2SIM_MAST3R_PYTHON}"
+repository = "${REAL2SIM_MAST3R_REPO}"
+weights = "${REAL2SIM_MAST3R_WEIGHTS}"
+runner = "scripts/run_mast3r_sfm.py"
+device = "cuda"
+image_size = 512
+scene_graph = "logwin"
+window_size = 5
+cyclic = true
+shared_intrinsics = true
+coarse_iterations = 300
+fine_iterations = 300
+matching_confidence = 5.0
+max_points = 200000
+
+[gaussian]
+python = "${REAL2SIM_GAUSSIAN_PYTHON}"
+launcher = "scripts/run_hyworld_trainer.py"
+torch_home = "${REAL2SIM_ASSETS}/weights/torch"
+source_revision = "7f668e67c74338d50684e57be46a438459b6bbe1"
+max_steps = 5000
+data_factor = 1
+sh_degree = 3
+test_every = 8
+disable_video = true

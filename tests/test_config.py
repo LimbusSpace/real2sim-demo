@@ -61,3 +61,29 @@ def test_config_reports_unset_environment_variable(
 
     with pytest.raises(ValueError, match="REAL2SIM_MISSING"):
         Stage1Settings.from_toml(config)
+
+
+def test_mast3r_config_resolves_external_paths(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    assets = tmp_path / "assets"
+    python = tmp_path / "env" / "python.exe"
+    repository = tmp_path / "tools" / "mast3r"
+    weights = tmp_path / "weights" / "mast3r.pth"
+    monkeypatch.setenv("REAL2SIM_ASSETS", str(assets))
+    monkeypatch.setenv("REAL2SIM_MAST3R_PYTHON", str(python))
+    monkeypatch.setenv("REAL2SIM_MAST3R_REPO", str(repository))
+    monkeypatch.setenv("REAL2SIM_MAST3R_WEIGHTS", str(weights))
+    monkeypatch.setenv("REAL2SIM_GAUSSIAN_PYTHON", "python")
+
+    settings = Stage1Settings.from_toml(
+        Path("configs/stage1.tabletop_v1.mast3r.toml")
+    ).resolved(Path.cwd())
+
+    assert settings.sfm.backend == "mast3r"
+    assert Path(settings.mast3r.python) == python
+    assert Path(settings.mast3r.repository) == repository
+    assert Path(settings.mast3r.weights) == weights
+    assert settings.mast3r.scene_graph == "logwin"
+    assert settings.mast3r.window_size == 5
+    assert settings.run_dir == assets / "runs" / "tabletop_v1_mast3r"

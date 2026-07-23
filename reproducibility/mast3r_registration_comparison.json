@@ -1,0 +1,80 @@
+{
+  "schema": "real2sim.sfm_registration_comparison.v1",
+  "generated_at": "2026-07-23T12:05:56Z",
+  "metric": {
+    "name": "registered_frame_success_rate",
+    "formula": "registered_image_count / extracted_frame_count",
+    "mast3r_registration_definition": "The backend emitted a finite camera pose and finite positive focal lengths for the frame.",
+    "caveat": "MASt3R-SfM jointly optimizes every node in a connected pair graph. A 100% output-pose rate is not an independent geometric-accuracy validation of every frame."
+  },
+  "baseline": {
+    "backend": "colmap",
+    "version": "4.1.1 (a0d785f, CUDA)",
+    "matcher": "exhaustive"
+  },
+  "candidate": {
+    "backend": "mast3r_sfm",
+    "source_revision": "f5209afc300cec36239a7ac992263f36847bbba0",
+    "dust3r_revision": "3cc8c88c413bb9e34c41db0e0eef99c2ee010b12",
+    "checkpoint_sha256": "e28f91b488554653e2b46ddae9c78c1143e0bcb2e27d3e26cdb0b717f1568eb2",
+    "scene_graph": "logwin-5",
+    "cyclic": true,
+    "shared_intrinsics": true,
+    "image_size": 512,
+    "coarse_iterations": 300,
+    "fine_iterations": 300,
+    "matching_confidence": 5.0,
+    "sparse_points_export_cap": 200000
+  },
+  "runs": [
+    {
+      "name": "tabletop_v1",
+      "extracted_frames": 64,
+      "colmap_registered_frames": 23,
+      "colmap_success_rate": 0.359375,
+      "mast3r_registered_frames": 64,
+      "mast3r_success_rate": 1.0,
+      "registered_frame_delta": 41,
+      "percentage_point_delta": 64.0625,
+      "mast3r_sfm_duration_s": 769.287,
+      "mast3r_sparse_points": 200000,
+      "mast3r_manifest": "${REAL2SIM_ASSETS}/runs/tabletop_v1_mast3r/manifest.json"
+    },
+    {
+      "name": "tabletop_v2",
+      "extracted_frames": 62,
+      "colmap_registered_frames": 2,
+      "colmap_success_rate": 0.03225806451612903,
+      "mast3r_registered_frames": 62,
+      "mast3r_success_rate": 1.0,
+      "registered_frame_delta": 60,
+      "percentage_point_delta": 96.7741935483871,
+      "mast3r_sfm_duration_s": 697.002,
+      "mast3r_sparse_points": 200000,
+      "mast3r_manifest": "${REAL2SIM_ASSETS}/runs/tabletop_v2_mast3r/manifest.json"
+    },
+    {
+      "name": "tabletop_v3",
+      "extracted_frames": 44,
+      "colmap_registered_frames": 17,
+      "colmap_success_rate": 0.38636363636363635,
+      "mast3r_registered_frames": 44,
+      "mast3r_success_rate": 1.0,
+      "registered_frame_delta": 27,
+      "percentage_point_delta": 61.36363636363637,
+      "mast3r_sfm_duration_s": 427.237,
+      "mast3r_sparse_points": 200000,
+      "mast3r_manifest": "${REAL2SIM_ASSETS}/runs/tabletop_v3_mast3r/manifest.json"
+    }
+  ],
+  "aggregate": {
+    "extracted_frames": 170,
+    "colmap_registered_frames": 42,
+    "colmap_success_rate": 0.24705882352941178,
+    "mast3r_registered_frames": 170,
+    "mast3r_success_rate": 1.0,
+    "registered_frame_delta": 128,
+    "percentage_point_delta": 75.29411764705883,
+    "mast3r_sfm_duration_s": 1893.526
+  }
+}

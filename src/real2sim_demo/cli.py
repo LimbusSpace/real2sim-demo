@@ -11,7 +11,7 @@ from .pipeline import run_stage1
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Run the stage-1 real video -> COLMAP -> HY-World 3DGS pipeline."
+        description="Run the stage-1 real video -> SfM -> HY-World 3DGS pipeline."
     )
     parser.add_argument(
         "--config",

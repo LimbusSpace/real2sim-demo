@@ -12,6 +12,9 @@ jobs:
       REAL2SIM_VIDEO: /tmp/tabletop.mp4
       REAL2SIM_COLMAP: colmap
       REAL2SIM_GAUSSIAN_PYTHON: python
+      REAL2SIM_MAST3R_PYTHON: python
+      REAL2SIM_MAST3R_REPO: /tmp/mast3r
+      REAL2SIM_MAST3R_WEIGHTS: /tmp/mast3r.pth
       REAL2SIM_2DGS_PYTHON: /tmp/2dgs-env/bin/python
       REAL2SIM_2DGS_ROOT: /tmp/2d-gaussian-splatting
     steps:
@@ -26,5 +29,8 @@ jobs:
       - run: uv run mypy src
       - run: uv run real2sim --config configs/stage1.sceaux.smoke.toml --dry-run
       - run: uv run real2sim --config configs/stage1.windows.example.toml --dry-run
+      - run: uv run real2sim --config configs/stage1.tabletop_v3.mast3r.toml --dry-run
       - run: uv run real2sim-mesh --config configs/stage2.tabletop_v1.toml --dry-run
+      - run: uv run real2sim-mesh --config configs/stage2.tabletop_v3.mast3r.toml --dry-run
       - run: uv run real2sim-physics --config configs/stage3.tabletop_v1.toml --dry-run
+      - run: uv run real2sim-physics --config configs/stage3.tabletop_v3.mast3r.toml --dry-run

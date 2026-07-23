@@ -11,7 +11,7 @@ from .mesh_pipeline import run_stage2
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Run Stage 2: COLMAP scene -> 2D Gaussian Splatting -> bounded mesh."
+        description="Run Stage 2: SfM scene -> 2D Gaussian Splatting -> bounded mesh."
     )
     parser.add_argument(
         "--config",

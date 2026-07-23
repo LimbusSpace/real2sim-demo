@@ -38,6 +38,8 @@ def convert_colmap_text_to_hyworld(
     model_dir: Path,
     source_images_dir: Path,
     output_dir: Path,
+    *,
+    max_images: int | None = None,
 ) -> dict[str, Any]:
     cameras = read_cameras(model_dir / "cameras.txt")
     images = read_registered_images(model_dir / "images.txt")
@@ -46,6 +48,9 @@ def convert_colmap_text_to_hyworld(
         raise RuntimeError(f"COLMAP registered only {len(images)} images; at least 2 are required.")
     if not points:
         raise RuntimeError("COLMAP reconstruction contains no sparse 3D points.")
+
+    if max_images is not None and len(images) > max_images:
+        images = select_angular_uniform(images, max_images)
 
     images_dir = output_dir / "images"
     images_dir.mkdir(parents=True, exist_ok=True)
@@ -89,6 +94,80 @@ def convert_colmap_text_to_hyworld(
         json.dumps(provenance, indent=2), encoding="utf-8"
     )
     return provenance
+
+
+def camera_azimuth_deg(image: RegisteredImage) -> float:
+    """从 COLMAP world-to-camera 变换中提取相机的水平方位角（度）。
+
+    COLMAP 存储的是 world-to-camera 变换 (R_wc, t_wc)。
+    相机在世界坐标系中的位置为 C = -R_wc^T @ t_wc。
+    方位角取 XZ 平面上的 atan2(cx, cz)，假设 Y 轴大致竖直向上。
+    """
+    qw, qx, qy, qz = image.qvec_wxyz
+    norm = math.sqrt(qw * qw + qx * qx + qy * qy + qz * qz)
+    if norm == 0.0:
+        return 0.0
+    qw, qx, qy, qz = qw / norm, qx / norm, qy / norm, qz / norm
+    # R_wc 的转置（即 R_cw），行优先列出 R_wc 各行再按列读
+    r00 = 1.0 - 2.0 * (qy * qy + qz * qz)
+    r10 = 2.0 * (qx * qy + qz * qw)
+    r20 = 2.0 * (qx * qz - qy * qw)
+    r02 = 2.0 * (qx * qz + qy * qw)
+    r12 = 2.0 * (qy * qz - qx * qw)
+    r22 = 1.0 - 2.0 * (qx * qx + qy * qy)
+    # C = -R_wc^T @ t  （R_wc^T 的第 j 列 = R_wc 的第 j 行）
+    tx, ty, tz = image.tvec_xyz
+    cx = -(r00 * tx + r10 * ty + r20 * tz)
+    cz = -(r02 * tx + r12 * ty + r22 * tz)
+    return math.degrees(math.atan2(cx, cz))
+
+
+def select_angular_uniform(
+    images: dict[int, RegisteredImage],
+    target_count: int,
+) -> dict[int, RegisteredImage]:
+    """从已注册图像中按方位角均匀选出 target_count 张。
+
+    算法：将 [-180°, 180°) 等分为 target_count 个角度 bin，
+    每个 bin 里保留方位角最靠近 bin 中心的那张图像。
+    若某个 bin 为空，则从相邻 bin 的候选中补选最近的一张。
+    """
+    if target_count <= 0:
+        raise ValueError("target_count 必须为正整数")
+    if len(images) <= target_count:
+        return images
+
+    with_az: list[tuple[float, RegisteredImage]] = sorted(
+        ((camera_azimuth_deg(img), img) for img in images.values()),
+        key=lambda x: x[0],
+    )
+
+    bin_width = 360.0 / target_count
+    # bins[i] = (最小距离, RegisteredImage)
+    bins: dict[int, tuple[float, RegisteredImage]] = {}
+    for azimuth, img in with_az:
+        # 将 azimuth 映射到 [0, 360) 再除以 bin_width 取整
+        bin_idx = int((azimuth + 180.0) % 360.0 / bin_width) % target_count
+        bin_center = -180.0 + (bin_idx + 0.5) * bin_width
+        dist = abs(azimuth - bin_center)
+        if bin_idx not in bins or dist < bins[bin_idx][0]:
+            bins[bin_idx] = (dist, img)
+
+    # 若部分 bin 为空，从全部候选里按方位角距离补满
+    if len(bins) < target_count:
+        assigned_ids = {v[1].image_id for v in bins.values()}
+        remaining = [(az, img) for az, img in with_az if img.image_id not in assigned_ids]
+        for bin_idx in range(target_count):
+            if bin_idx in bins:
+                continue
+            if not remaining:
+                break
+            bin_center = -180.0 + (bin_idx + 0.5) * bin_width
+            best = min(remaining, key=lambda x: abs(x[0] - bin_center))
+            bins[bin_idx] = (0.0, best[1])
+            remaining.remove(best)
+
+    return {img.image_id: img for _, img in bins.values()}
 
 
 def read_cameras(path: Path) -> dict[int, Camera]:

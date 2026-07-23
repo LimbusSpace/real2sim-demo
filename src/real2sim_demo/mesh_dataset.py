@@ -6,6 +6,8 @@ import struct
 from pathlib import Path, PurePosixPath
 from typing import Any
 
+from .colmap_text import read_registered_images
+
 
 def prepare_2dgs_dataset(input_run_dir: Path, dataset_dir: Path) -> dict[str, Any]:
     manifest_path = input_run_dir / "manifest.json"
@@ -18,17 +20,30 @@ def prepare_2dgs_dataset(input_run_dir: Path, dataset_dir: Path) -> dict[str, An
             f"got {manifest.get('stage')!r}"
         )
 
-    source_root = input_run_dir / "colmap" / "undistorted"
-    source_images = source_root / "images"
-    source_model = source_root / "sparse"
-    required_model = [source_model / name for name in _MODEL_FILES]
+    backend = str(manifest.get("reconstruction", {}).get("backend", "colmap")).lower()
+    if backend == "mast3r":
+        source_images = input_run_dir / "frames"
+        source_model = input_run_dir / "mast3r" / "model_txt"
+        model_format = "text"
+        model_files = _TEXT_MODEL_FILES
+        registered_names = read_colmap_text_image_names(source_model / "images.txt")
+    elif backend == "colmap":
+        source_root = input_run_dir / "colmap" / "undistorted"
+        source_images = source_root / "images"
+        source_model = source_root / "sparse"
+        model_format = "binary"
+        model_files = _BINARY_MODEL_FILES
+        registered_names = read_colmap_image_names(source_model / "images.bin")
+    else:
+        raise ValueError(f"Unsupported Stage 1 SfM backend: {backend!r}")
+
+    required_model = [source_model / name for name in model_files]
     missing = [str(path) for path in required_model if not path.is_file()]
     if missing:
-        raise FileNotFoundError("Missing undistorted COLMAP files: " + ", ".join(missing))
+        raise FileNotFoundError("Missing Stage 1 SfM model files: " + ", ".join(missing))
 
-    registered_names = read_colmap_image_names(source_model / "images.bin")
     if len(registered_names) < 2:
-        raise ValueError(f"COLMAP model has only {len(registered_names)} registered images")
+        raise ValueError(f"SfM model has only {len(registered_names)} registered images")
 
     destination_images = dataset_dir / "images"
     destination_model = dataset_dir / "sparse" / "0"
@@ -47,7 +62,7 @@ def prepare_2dgs_dataset(input_run_dir: Path, dataset_dir: Path) -> dict[str, An
         shutil.copy2(source, destination)
         copied_images.append(str(destination.resolve()))
 
-    for name in _MODEL_FILES:
+    for name in model_files:
         shutil.copy2(source_model / name, destination_model / name)
 
     actual_images = [path for path in destination_images.rglob("*") if path.is_file()]
@@ -61,8 +76,11 @@ def prepare_2dgs_dataset(input_run_dir: Path, dataset_dir: Path) -> dict[str, An
         "schema": "real2sim.2dgs_dataset.v1",
         "source_stage1_manifest": str(manifest_path.resolve()),
         "source_stage1_stage": manifest["stage"],
+        "source_sfm_backend": backend,
         "source_images": str(source_images.resolve()),
         "source_model": str(source_model.resolve()),
+        "model_format": model_format,
+        "model_files": list(model_files),
         "dataset": str(dataset_dir.resolve()),
         "registered_image_count": len(registered_names),
         "registered_images": registered_names,
@@ -79,8 +97,18 @@ def validate_prepared_dataset(dataset_dir: Path) -> dict[str, Any]:
     if not provenance_path.is_file():
         raise FileNotFoundError(f"Missing {provenance_path}; run stage=prepare first")
     provenance: dict[str, Any] = json.loads(provenance_path.read_text(encoding="utf-8"))
-    registered_names = read_colmap_image_names(dataset_dir / "sparse" / "0" / "images.bin")
-    for name in _MODEL_FILES:
+    model_format = provenance.get("model_format", "binary")
+    if model_format == "binary":
+        model_files = _BINARY_MODEL_FILES
+        registered_names = read_colmap_image_names(dataset_dir / "sparse" / "0" / "images.bin")
+    elif model_format == "text":
+        model_files = _TEXT_MODEL_FILES
+        registered_names = read_colmap_text_image_names(
+            dataset_dir / "sparse" / "0" / "images.txt"
+        )
+    else:
+        raise ValueError(f"Unsupported prepared SfM model format: {model_format!r}")
+    for name in model_files:
         if not (dataset_dir / "sparse" / "0" / name).is_file():
             raise FileNotFoundError(dataset_dir / "sparse" / "0" / name)
     missing_images = [
@@ -93,6 +121,11 @@ def validate_prepared_dataset(dataset_dir: Path) -> dict[str, Any]:
     if provenance.get("registered_image_count") != len(registered_names):
         raise ValueError("Adapted dataset provenance image count does not match COLMAP")
     return provenance
+
+
+def read_colmap_text_image_names(path: Path) -> list[str]:
+    images = read_registered_images(path)
+    return [image.name for image in images.values()]
 
 
 def read_colmap_image_names(path: Path) -> list[str]:
@@ -144,4 +177,5 @@ def _safe_image_path(name: str) -> PurePosixPath:
     return normalized
 
 
-_MODEL_FILES = ("cameras.bin", "images.bin", "points3D.bin")
+_BINARY_MODEL_FILES = ("cameras.bin", "images.bin", "points3D.bin")
+_TEXT_MODEL_FILES = ("cameras.txt", "images.txt", "points3D.txt")

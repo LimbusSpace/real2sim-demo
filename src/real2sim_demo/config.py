@@ -18,12 +18,38 @@ class VideoSettings:
 
 
 @dataclass(frozen=True, slots=True)
+class SfmSettings:
+    backend: str = "colmap"
+
+
+@dataclass(frozen=True, slots=True)
 class ColmapSettings:
     executable: str = "colmap"
     camera_model: str = "SIMPLE_RADIAL"
     matcher: str = "sequential"
     use_gpu: bool = True
     sequential_overlap: int = 10
+    # 角度均匀选帧：COLMAP 注册帧数超过此值时，按方位角等间距保留 max_images 帧。
+    # None = 不过滤（保留全部注册帧）。建议值：50~100。
+    max_images: int | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class Mast3rSettings:
+    python: str = "python"
+    repository: str = ""
+    weights: str = ""
+    runner: str = "scripts/run_mast3r_sfm.py"
+    device: str = "cuda"
+    image_size: int = 512
+    scene_graph: str = "logwin"
+    window_size: int = 5
+    cyclic: bool = True
+    shared_intrinsics: bool = True
+    coarse_iterations: int = 300
+    fine_iterations: int = 300
+    matching_confidence: float = 5.0
+    max_points: int = 200_000
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,7 +68,9 @@ class GaussianSettings:
 @dataclass(frozen=True, slots=True)
 class Stage1Settings:
     video: VideoSettings
+    sfm: SfmSettings = field(default_factory=SfmSettings)
     colmap: ColmapSettings = field(default_factory=ColmapSettings)
+    mast3r: Mast3rSettings = field(default_factory=Mast3rSettings)
     gaussian: GaussianSettings = field(default_factory=GaussianSettings)
     run_dir: Path = Path("artifacts/runs/stage1")
 
@@ -50,7 +78,9 @@ class Stage1Settings:
     def from_toml(cls, path: Path) -> "Stage1Settings":
         payload = tomllib.loads(path.read_text(encoding="utf-8"))
         video = payload.get("video", {})
+        sfm = payload.get("sfm", {})
         colmap = payload.get("colmap", {})
+        mast3r = payload.get("mast3r", {})
         gaussian = payload.get("gaussian", {})
         return cls(
             video=VideoSettings(
@@ -58,12 +88,32 @@ class Stage1Settings:
                 fps=float(video.get("fps", 2.0)),
                 ffmpeg=_expand_environment(str(video.get("ffmpeg", "ffmpeg"))),
             ),
+            sfm=SfmSettings(backend=str(sfm.get("backend", "colmap")).lower()),
             colmap=ColmapSettings(
                 executable=_expand_environment(str(colmap.get("executable", "colmap"))),
                 camera_model=str(colmap.get("camera_model", "SIMPLE_RADIAL")),
                 matcher=str(colmap.get("matcher", "sequential")),
                 use_gpu=bool(colmap.get("use_gpu", True)),
                 sequential_overlap=int(colmap.get("sequential_overlap", 10)),
+                max_images=int(colmap["max_images"]) if "max_images" in colmap else None,
+            ),
+            mast3r=Mast3rSettings(
+                python=_expand_environment(str(mast3r.get("python", "python"))),
+                repository=_expand_environment(str(mast3r.get("repository", ""))),
+                weights=_expand_environment(str(mast3r.get("weights", ""))),
+                runner=_expand_environment(
+                    str(mast3r.get("runner", "scripts/run_mast3r_sfm.py"))
+                ),
+                device=str(mast3r.get("device", "cuda")),
+                image_size=int(mast3r.get("image_size", 512)),
+                scene_graph=str(mast3r.get("scene_graph", "logwin")),
+                window_size=int(mast3r.get("window_size", 5)),
+                cyclic=bool(mast3r.get("cyclic", True)),
+                shared_intrinsics=bool(mast3r.get("shared_intrinsics", True)),
+                coarse_iterations=int(mast3r.get("coarse_iterations", 300)),
+                fine_iterations=int(mast3r.get("fine_iterations", 300)),
+                matching_confidence=float(mast3r.get("matching_confidence", 5.0)),
+                max_points=int(mast3r.get("max_points", 200_000)),
             ),
             gaussian=GaussianSettings(
                 python=_expand_environment(str(gaussian.get("python", ""))),
@@ -96,7 +146,24 @@ class Stage1Settings:
                 fps=self.video.fps,
                 ffmpeg=self.video.ffmpeg,
             ),
+            sfm=self.sfm,
             colmap=self.colmap,
+            mast3r=Mast3rSettings(
+                python=_resolve_optional_path(repo_root, self.mast3r.python),
+                repository=_resolve_optional_path(repo_root, self.mast3r.repository),
+                weights=_resolve_optional_path(repo_root, self.mast3r.weights),
+                runner=_resolve_optional_path(repo_root, self.mast3r.runner),
+                device=self.mast3r.device,
+                image_size=self.mast3r.image_size,
+                scene_graph=self.mast3r.scene_graph,
+                window_size=self.mast3r.window_size,
+                cyclic=self.mast3r.cyclic,
+                shared_intrinsics=self.mast3r.shared_intrinsics,
+                coarse_iterations=self.mast3r.coarse_iterations,
+                fine_iterations=self.mast3r.fine_iterations,
+                matching_confidence=self.mast3r.matching_confidence,
+                max_points=self.mast3r.max_points,
+            ),
             gaussian=GaussianSettings(
                 python=_resolve_optional_path(repo_root, self.gaussian.python),
                 launcher=_resolve_optional_path(repo_root, self.gaussian.launcher),
@@ -118,12 +185,30 @@ class Stage1Settings:
                 "fps": self.video.fps,
                 "ffmpeg": self.video.ffmpeg,
             },
+            "sfm": {"backend": self.sfm.backend},
             "colmap": {
                 "executable": self.colmap.executable,
                 "camera_model": self.colmap.camera_model,
                 "matcher": self.colmap.matcher,
                 "use_gpu": self.colmap.use_gpu,
                 "sequential_overlap": self.colmap.sequential_overlap,
+                "max_images": self.colmap.max_images,
+            },
+            "mast3r": {
+                "python": self.mast3r.python,
+                "repository": self.mast3r.repository,
+                "weights": self.mast3r.weights,
+                "runner": self.mast3r.runner,
+                "device": self.mast3r.device,
+                "image_size": self.mast3r.image_size,
+                "scene_graph": self.mast3r.scene_graph,
+                "window_size": self.mast3r.window_size,
+                "cyclic": self.mast3r.cyclic,
+                "shared_intrinsics": self.mast3r.shared_intrinsics,
+                "coarse_iterations": self.mast3r.coarse_iterations,
+                "fine_iterations": self.mast3r.fine_iterations,
+                "matching_confidence": self.mast3r.matching_confidence,
+                "max_points": self.mast3r.max_points,
             },
             "gaussian": {
                 "python": self.gaussian.python,

@@ -11,6 +11,7 @@ from .colmap import ColmapConfig, run_colmap
 from .colmap_text import convert_colmap_text_to_hyworld
 from .config import Stage1Settings
 from .gaussian import GaussianRunConfig, parse_hyworld_evaluation, train_hyworld
+from .mast3r import Mast3rConfig, read_mast3r_stats, run_mast3r
 from .video import VideoExtractionConfig, extract_frames
 
 
@@ -48,34 +49,85 @@ def run_stage1(
             manifest["artifacts"]["frames_dir"] = str(frames_dir.resolve())
             manifest["artifacts"]["frame_count"] = len(frames)
 
-            colmap_artifacts, _ = _timed_step(
-                trace,
-                "colmap_reconstruction",
-                lambda: run_colmap(
-                    frames_dir,
-                    run_dir / "colmap",
-                    ColmapConfig(
-                        executable=settings.colmap.executable,
-                        camera_model=settings.colmap.camera_model,
-                        matcher=settings.colmap.matcher,
-                        use_gpu=settings.colmap.use_gpu,
-                        sequential_overlap=settings.colmap.sequential_overlap,
+            sfm_backend = settings.sfm.backend
+            sfm_artifacts: Any
+            if sfm_backend == "colmap":
+                sfm_artifacts, _ = _timed_step(
+                    trace,
+                    "colmap_reconstruction",
+                    lambda: run_colmap(
+                        frames_dir,
+                        run_dir / "colmap",
+                        ColmapConfig(
+                            executable=settings.colmap.executable,
+                            camera_model=settings.colmap.camera_model,
+                            matcher=settings.colmap.matcher,
+                            use_gpu=settings.colmap.use_gpu,
+                            sequential_overlap=settings.colmap.sequential_overlap,
+                        ),
+                        dry_run=dry_run,
                     ),
-                    dry_run=dry_run,
-                ),
-            )
-            manifest["artifacts"]["colmap_text_model"] = str(
-                colmap_artifacts.text_model_dir.resolve()
+                )
+                manifest["artifacts"]["colmap_text_model"] = str(
+                    sfm_artifacts.text_model_dir.resolve()
+                )
+                sfm_stats: dict[str, Any] = {}
+            elif sfm_backend == "mast3r":
+                sfm_artifacts, _ = _timed_step(
+                    trace,
+                    "mast3r_reconstruction",
+                    lambda: run_mast3r(
+                        frames_dir,
+                        run_dir / "mast3r",
+                        Mast3rConfig(
+                            python=settings.mast3r.python,
+                            repository=Path(settings.mast3r.repository),
+                            weights=Path(settings.mast3r.weights),
+                            runner=Path(settings.mast3r.runner),
+                            device=settings.mast3r.device,
+                            image_size=settings.mast3r.image_size,
+                            scene_graph=settings.mast3r.scene_graph,
+                            window_size=settings.mast3r.window_size,
+                            cyclic=settings.mast3r.cyclic,
+                            shared_intrinsics=settings.mast3r.shared_intrinsics,
+                            coarse_iterations=settings.mast3r.coarse_iterations,
+                            fine_iterations=settings.mast3r.fine_iterations,
+                            matching_confidence=settings.mast3r.matching_confidence,
+                            max_points=settings.mast3r.max_points,
+                        ),
+                        dry_run=dry_run,
+                    ),
+                )
+                manifest["artifacts"]["mast3r_text_model"] = str(
+                    sfm_artifacts.text_model_dir.resolve()
+                )
+                sfm_stats = {} if dry_run else read_mast3r_stats(sfm_artifacts.stats_path)
+            else:
+                raise ValueError(f"Unsupported SfM backend: {sfm_backend}")
+            manifest["artifacts"]["sfm_text_model"] = str(
+                sfm_artifacts.text_model_dir.resolve()
             )
             if not dry_run:
                 provenance = convert_colmap_text_to_hyworld(
-                    colmap_artifacts.text_model_dir,
-                    colmap_artifacts.source_images_dir,
+                    sfm_artifacts.text_model_dir,
+                    sfm_artifacts.source_images_dir,
                     run_dir / "hyworld_dataset",
+                    max_images=settings.colmap.max_images,
                 )
                 manifest["artifacts"]["hyworld_dataset"] = str(
                     (run_dir / "hyworld_dataset").resolve()
                 )
+                registered_count = int(provenance["image_count"])
+                provenance.update(
+                    {
+                        "backend": sfm_backend,
+                        "input_image_count": len(frames),
+                        "registered_image_count": registered_count,
+                        "registration_success_rate": registered_count / len(frames),
+                    }
+                )
+                if sfm_stats:
+                    provenance["backend_stats"] = sfm_stats
                 manifest["reconstruction"] = provenance
             manifest["stage"] = "commands_planned" if dry_run else "prepared"
 

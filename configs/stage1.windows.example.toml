@@ -11,6 +11,8 @@ camera_model = "SIMPLE_RADIAL"
 matcher = "sequential"
 use_gpu = true
 sequential_overlap = 10
+# max_images = 80  # 角度均匀选帧：COLMAP 注册帧数超过此值时，按方位角保留均匀子集。
+#                  # 建议：一圈轨道视频设为 60~100；不设则保留全部帧。
 
 [gaussian]
 python = "${REAL2SIM_GAUSSIAN_PYTHON}"

@@ -6,6 +6,8 @@ from pathlib import Path
 from real2sim_demo.config import (
     ColmapSettings,
     GaussianSettings,
+    Mast3rSettings,
+    SfmSettings,
     Stage1Settings,
     VideoSettings,
 )
@@ -38,3 +40,28 @@ def test_stage1_dry_run_records_planned_commands(tmp_path: Path) -> None:
     ]
     assert all(event["status"] == "completed" for event in trace["events"])
     assert (settings.run_dir / "logs/07_hyworld_train.log").is_file()
+
+
+def test_stage1_mast3r_dry_run_records_planned_command(tmp_path: Path) -> None:
+    settings = Stage1Settings(
+        video=VideoSettings(path=tmp_path / "missing.mp4"),
+        sfm=SfmSettings(backend="mast3r"),
+        mast3r=Mast3rSettings(
+            python="python",
+            repository=str(tmp_path / "mast3r"),
+            weights=str(tmp_path / "mast3r.pth"),
+            runner=str(tmp_path / "run_mast3r.py"),
+        ),
+        run_dir=tmp_path / "run",
+    )
+
+    manifest = run_stage1(settings, stage="prepare", dry_run=True)
+
+    assert manifest["settings"]["sfm"]["backend"] == "mast3r"
+    assert "mast3r_text_model" in manifest["artifacts"]
+    trace = json.loads((settings.run_dir / "trace.json").read_text(encoding="utf-8"))
+    assert [event["stage"] for event in trace["events"]] == [
+        "extract_frames",
+        "mast3r_reconstruction",
+    ]
+    assert (settings.run_dir / "logs/02_mast3r_sfm.log").is_file()
